@@ -1,58 +1,59 @@
 <?php
 
-$niveauClasses = ["NietBehaald", "Beginner", "Gevorderde", "Eindexamenniveau"];
+
+function filterOnlyLetters($string){
+    return preg_replace("/[^a-zA-Z0-9]/", "", $string);
+}
 
 function renderRapport($student, $leerdoelResultaat, $leerdoelPlanning, $aantalPeriodes = 12, $currentPeriode = 6) {
-    global $niveauClasses;
     echo "hello world";
-    echo "<br>";
-    var_dump($student);
-    echo "<br>";
-    var_dump($leerdoelResultaat);
-    echo "<br>";
-    var_dump($leerdoelPlanning);
-
     ?>
+    
     <style>
-        .NietBehaald { background-color: #a0a0a0ff; }
-        .Beginner { background-color: #d2c92fff; }
-        .Gevorderde { background-color: #27acc4ff; }
-        .Eindexamenniveau { background-color: #3812c3ff; }
-        .behaald { border: 2px solid #155724; }
-        .current { border: 2px solid #e81010ff; }
+        td{
+            border: 1px solid black;
+        }
+
+        .toetsniveau_0 {
+            background-color: grey;
+        }
+        .toetsniveau_1 {
+            background-color: lightblue;
+        }
+        .toetsniveau_2 {
+            background-color: lightgreen;
+        }
+        .toetsniveau_3 {
+            background-color: orange;
+        }
     </style>
+
+    <style>
+        .leerdoel_
+    </style>
+
+    
     <?php
 
+
     echo "<h2>Student: " . htmlspecialchars($student->naam) . "</h2>";
-    echo "<table border='1' cellpadding='5' cellspacing='0'>";
+    echo "<table>";
     echo "<tr><th>Leerdoel</th>";
     for ($p = 1; $p <= $aantalPeriodes; $p++) {
         echo "<th>Periode $p</th>";
     }
     echo "</tr>";
 
-    foreach ($leerdoelPlanning as $leerdoel => $niveaus) {
-        echo "<tr>";
-        echo "<td>" . htmlspecialchars($leerdoel) . "</td>";
-        $behaaldNiveau = $leerdoelResultaat->getBehaaldNiveau($leerdoel)->value;
-        $currentNiveau = 0;
-        $behaald = true;
+    foreach ($leerdoelPlanning->getAll() as $leerdoel) {
+        $leerdoelAsClass = 'leerdoel_' . filterOnlyLetters($leerdoel->naam);
+        echo "<tr class='$leerdoelAsClass'>";
+        echo "<td>" . htmlspecialchars($leerdoel->naam) . "</td>";
         for ($p = 1; $p <= $aantalPeriodes; $p++) {
-            if ($niveaus['b'] === $p) {
-                $currentNiveau = 1;
-            }
-            elseif ($niveaus['g'] === $p) {
-                $currentNiveau = 2;
-            }
-            if ($niveaus['e'] === $p) {
-                $currentNiveau = 3;
-            }
-            if ($behaaldNiveau < $currentNiveau) {
-                $behaald = false;
-            }
-            echo "<td class='" . $niveauClasses[$currentNiveau] . 
-                ($behaald && ($behaaldNiveau > 0) ? " behaald" : "") . 
-                ($p ==  $currentPeriode? " current" : "") . "'>";
+            $toetsniveau = $leerdoel->getToetsNiveauInPeriode($p);
+            echo "<td class='toetsniveau_$toetsniveau periode_$p " .
+            ($leerdoel->getFirstToetsNiveauPeriode($toetsniveau) == $p ? "first " : "") .
+            ($leerdoel->getLastToetsNiveauPeriode($toetsniveau) == $p ? "last " : "") .
+            "'>";
         }
         echo "</tr>";
     }

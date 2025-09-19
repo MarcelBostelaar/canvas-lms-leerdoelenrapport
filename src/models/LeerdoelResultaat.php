@@ -7,6 +7,7 @@ enum Niveau: Int {
     case BovenEindexamenniveau = 4;
 }
 class LeerdoelResultaat{
+    public $beschrijving;
     public $map;
     public function __construct() {
         $this->map = [];
