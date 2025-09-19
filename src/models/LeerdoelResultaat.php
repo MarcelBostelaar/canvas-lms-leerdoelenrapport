@@ -8,15 +8,19 @@ enum Niveau: Int {
 }
 class LeerdoelResultaat{
     public $beschrijving;
-    public $map;
+    private $map;
     public function __construct() {
         $this->map = [];
     }
-    public function add(string $leerdoel, niveau $niveau) {
-        $this->map[$leerdoel] = $niveau;
+    public function add(string $leerdoel, niveau $niveau, $periode) {
+        $this->map[$leerdoel] = ["niveau" => $niveau, "periode" => $periode];
     }
 
     public function getBehaaldNiveau(string $leerdoel): Niveau {
-        return $this->map[$leerdoel] ?? Niveau::NietBehaald;
+        return $this->map[$leerdoel] ?? null;
+    }
+
+    public function getAll(){
+        return $this->map;
     }
 }

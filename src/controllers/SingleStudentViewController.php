@@ -16,7 +16,7 @@ class SingleStudentViewController{
         $Leerdoelen = LeerdoelPlanning::loadFromFile();
         $CanvasReader = CanvasReader::fromEnv();
         $student = $CanvasReader->readStudent($this->studentID);
-        renderRapport($student, $student->resultaten, $Leerdoelen);
+        renderRapport($student, $Leerdoelen);
     }
 }
 

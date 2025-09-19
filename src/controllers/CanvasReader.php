@@ -16,9 +16,11 @@ class CanvasReader{
         // Dummy data for now
         $student = new Student();
         $student->naam = "Jan Jansen";
-        $student->resultaten = new LeerdoelResultaat();
-        $student->resultaten->add("Naam1", Niveau::Gevorderde);
-        $student->resultaten->add("Naam2", Niveau::NietBehaald);
+        $newresult = new LeerdoelResultaat();
+        $newresult->beschrijving = "Alles";
+        array_push($student->resultaten, $newresult);
+        $newresult->add("Naam1", Niveau::Gevorderde, 4);
+        $newresult->add("Naam2", Niveau::Beginner, 2);
         return $student;
     }
 

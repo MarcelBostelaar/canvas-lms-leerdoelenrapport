@@ -2,5 +2,5 @@
 
 class Student{
     public $naam;
-    public $resultaten;
+    public $resultaten = [];
 }

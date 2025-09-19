@@ -5,8 +5,7 @@ function filterOnlyLetters($string){
     return preg_replace("/[^a-zA-Z0-9]/", "", $string);
 }
 
-function renderRapport($student, $leerdoelResultaat, $leerdoelPlanning, $aantalPeriodes = 12, $currentPeriode = 6) {
-    echo "hello world";
+function renderRapport($student, $leerdoelPlanning, $aantalPeriodes = 12) {
     ?>
     
     <style>
@@ -27,13 +26,27 @@ function renderRapport($student, $leerdoelResultaat, $leerdoelPlanning, $aantalP
             background-color: orange;
         }
     </style>
-
-    <style>
-        .leerdoel_
-    </style>
-
-    
     <?php
+
+    var_dump($student->resultaten);
+
+    echo "<script type='text/javascript'>\n";
+    echo "let resultaten = [];\n";
+    foreach($student->resultaten as $resultaat){
+        ?>
+        resultaten["<?php echo $resultaat->beschrijving;?>"] = {
+            <?php
+            foreach($resultaat->getAll() as $naam => $content){ ?>
+            "<?php echo $naam;?>" : {
+                "niveau" : <?php echo $content["niveau"]->value?>,
+                "periode" : <?php echo $content["periode"]?>
+            },
+            <?php } ?>
+        };
+        <?php
+    }
+    echo "</script>";
+    echo "<script src='./../static/singlestudentview.js'></script>";
 
 
     echo "<h2>Student: " . htmlspecialchars($student->naam) . "</h2>";
@@ -46,7 +59,7 @@ function renderRapport($student, $leerdoelResultaat, $leerdoelPlanning, $aantalP
 
     foreach ($leerdoelPlanning->getAll() as $leerdoel) {
         $leerdoelAsClass = 'leerdoel_' . filterOnlyLetters($leerdoel->naam);
-        echo "<tr class='$leerdoelAsClass'>";
+        echo "<tr id='$leerdoelAsClass'>";
         echo "<td>" . htmlspecialchars($leerdoel->naam) . "</td>";
         for ($p = 1; $p <= $aantalPeriodes; $p++) {
             $toetsniveau = $leerdoel->getToetsNiveauInPeriode($p);
