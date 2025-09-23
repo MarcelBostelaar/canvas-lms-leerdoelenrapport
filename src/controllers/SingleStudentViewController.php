@@ -14,12 +14,12 @@ class SingleStudentViewController{
     }
 
     public function render() {
-        $Leerdoelen = LeerdoelPlanningProvider::getPlanning();
         $CanvasReader = CanvasReader::getReader();
+        $Leerdoelen = LeerdoelPlanningProvider::getPlanning($CanvasReader);
         $student = $CanvasReader->readStudent($this->studentID);
         renderRapport($student, $Leerdoelen);
     }
 }
 
-$x = new SingleStudentViewController(12345);
+$x = new SingleStudentViewController(42991); //Cursist Toetsen
 $x->render();

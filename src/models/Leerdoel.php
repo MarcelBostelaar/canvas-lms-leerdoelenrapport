@@ -20,6 +20,7 @@ class Leerdoel{
     public $toetsmomentenBeginner = [];
     public $toetsmomentenGevorderde = [];
     public $toetsmomentenEindexamenniveau = [];
+    public $id_in_canvas = null;
 
     public function __construct($categorie, $naam, $beginnerBeschrijving, $gevorderdeBeschrijving, $eindexamenniveauBeschrijving, $bovenEindniveauBeschrijving, $optelModel) {
         $this->categorie = $categorie;

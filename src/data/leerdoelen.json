@@ -1,0 +1,43 @@
+{
+    "leerdoelen": [
+        {
+            "categorie": "Categorie1",
+            "naam": "Op tijd aan de bel trekken",
+            "beschrijvingBeginner": "Beginner beschrijving",
+            "beschrijvingGevorderde": "Gevorderde beschrijving",
+            "beschrijvingEindexamenniveau": "Eindexamenniveau beschrijving",
+            "beschrijvingBovenEindexamenniveau": "Boven eindexamenniveau beschrijving",
+            "optelModel": "Hoogste",
+            "toetsmomentenBeginner": [1, 2],
+            "toetsmomentenGevorderde": [3],
+            "toetsmomentenEindexamenniveau": [5],
+            "toetsmomentenBovenEindexamenniveau": []
+        },
+        {
+            "categorie": "Categorie2",
+            "naam": "CSS",
+            "beschrijvingBeginner": "Beginner beschrijving",
+            "beschrijvingGevorderde": "Gevorderde beschrijving",
+            "beschrijvingEindexamenniveau": "Eindexamenniveau beschrijving",
+            "beschrijvingBovenEindexamenniveau": "Boven eindexamenniveau beschrijving",
+            "optelModel": "RunningAverage",
+            "toetsmomentenBeginner": [2],
+            "toetsmomentenGevorderde": [4],
+            "toetsmomentenEindexamenniveau": [6],
+            "toetsmomentenBovenEindexamenniveau": []
+        },
+        {
+            "categorie": "Categorie2",
+            "naam": "HTML",
+            "beschrijvingBeginner": "Beginner beschrijving",
+            "beschrijvingGevorderde": "Gevorderde beschrijving",
+            "beschrijvingEindexamenniveau": "Eindexamenniveau beschrijving",
+            "beschrijvingBovenEindexamenniveau": "Boven eindexamenniveau beschrijving",
+            "optelModel": "RunningAverage",
+            "toetsmomentenBeginner": [1],
+            "toetsmomentenGevorderde": [3],
+            "toetsmomentenEindexamenniveau": [4],
+            "toetsmomentenBovenEindexamenniveau": []
+        }
+    ]
+}

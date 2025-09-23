@@ -1,31 +1,82 @@
 <?php
 
 class LeerdoelPlanningProvider{
+    private $id_to_leerdoel = [];
 
-    public static function getPlanning() : LeerdoelPlanning {
-        return self::loadFromFile();
+    public function getLeerdoelById($id){
+        return $this->id_to_leerdoel[$id];
     }
 
-    private static function loadFromFile($filename = __DIR__ . '/../../data/leerdoelen.json') : LeerdoelPlanning {
-        //dummy data
-        $newone = new LeerdoelPlanning();
-        $leerdoel1 = new Leerdoel("Categorie1", "Naam1", "Beginner beschrijving", "Gevorderde beschrijving", "Eindexamenniveau beschrijving", "Boven eindexamenniveau beschrijving", optelModel::Hoogste);
-        $leerdoel2 = new Leerdoel("Categorie2", "Naam2", "Beginner beschrijving", "Gevorderde beschrijving", "Eindexamenniveau beschrijving", "Boven eindexamenniveau beschrijving", optelModel::RunningAverage);
-        $leerdoel3 = new Leerdoel("Categorie2", "Naam3", "Beginner beschrijving", "Gevorderde beschrijving", "Eindexamenniveau beschrijving", "Boven eindexamenniveau beschrijving", optelModel::RunningAverage);
-        $newone->addLeerdoel($leerdoel1);
-        $newone->addLeerdoel($leerdoel2);
-        $leerdoel1->addToetsmomentBeginner(1);
-        $leerdoel1->addToetsmomentBeginner(2);
-        $leerdoel1->addToetsmomentGevorderde(3);
-        $leerdoel1->addToetsmomentEindexamenniveau(5);
-        $leerdoel2->addToetsmomentBeginner(2);
-        $leerdoel2->addToetsmomentGevorderde(4);
-        $leerdoel2->addToetsmomentEindexamenniveau(6);
-        $newone->addLeerdoel($leerdoel3);
-        $leerdoel3->addToetsmomentBeginner(1);
-        $leerdoel3->addToetsmomentGevorderde(3);
-        $leerdoel3->addToetsmomentEindexamenniveau(4);
+    public static function getPlanning(CanvasReader $canvasreader) : LeerdoelPlanning {
+        $loaded = self::loadFromFile();
+        $canvasdata = $canvasreader->fetchStrippedDownMasterRubric();
+        self::addIdsFromCanvasData($canvasdata, $loaded);
+        return $loaded;
+    }
 
+    public static function addIdsFromCanvasData($canvasData, LeerdoelPlanning $leerdoelPlanning){
+        foreach($leerdoelPlanning->getAll() as $categorie => $leerdoelen){
+            foreach($leerdoelen as $leerdoel){
+                if(!isset($canvasData[$leerdoel->naam])){
+                    $alleLeerdoelenInCanvas = array_keys($canvasData);
+                    echo "Beschikbare leerdoelen in Canvas: <br>".implode(",<br> ", $alleLeerdoelenInCanvas)."\n";
+                    throw new Exception("Leerdoel naam '".$leerdoel->naam."' niet gevonden in Canvas data");
+                }
+                $leerdoel->id_in_canvas = $canvasData[$leerdoel->naam]['learning_outcome_id'];
+                $leerdoelPlanning->id_to_leerdoel[$leerdoel->id_in_canvas] = $leerdoel;
+            }
+        }
+    }
+
+    private static function loadFromFile($filename = __DIR__ . '/../data/leerdoelen.json') : LeerdoelPlanning {
+
+        if (!file_exists($filename)) {
+            throw new Exception("File not found: " . $filename);
+        }
+
+        $json = file_get_contents($filename);
+        $data = json_decode($json, true);
+
+        if ($data === null) {
+            throw new Exception("Invalid JSON in file: " . $filename);
+        }
+
+        $newone = new LeerdoelPlanning();
+
+        foreach ($data['leerdoelen'] as $leerdoelData) {
+            $leerdoel = new Leerdoel(
+                $leerdoelData['categorie'],
+                $leerdoelData['naam'],
+                $leerdoelData['beschrijvingBeginner'],
+                $leerdoelData['beschrijvingGevorderde'],
+                $leerdoelData['beschrijvingEindexamenniveau'],
+                $leerdoelData['beschrijvingBovenEindexamenniveau'],
+                constant('optelModel::' . $leerdoelData['optelModel'])
+            );
+
+            if (!empty($leerdoelData['toetsmomentenBeginner'])) {
+                foreach ($leerdoelData['toetsmomentenBeginner'] as $toetsmoment) {
+                    $leerdoel->addToetsmomentBeginner($toetsmoment);
+                }
+            }
+            if (!empty($leerdoelData['toetsmomentenGevorderde'])) {
+                foreach ($leerdoelData['toetsmomentenGevorderde'] as $toetsmoment) {
+                    $leerdoel->addToetsmomentGevorderde($toetsmoment);
+                }
+            }
+            if (!empty($leerdoelData['toetsmomentenEindexamenniveau'])) {
+                foreach ($leerdoelData['toetsmomentenEindexamenniveau'] as $toetsmoment) {
+                    $leerdoel->addToetsmomentEindexamenniveau($toetsmoment);
+                }
+            }
+            if (!empty($leerdoelData['toetsmomentenBovenEindexamenniveau'])) {
+                foreach ($leerdoelData['toetsmomentenBovenEindexamenniveau'] as $toetsmoment) {
+                    $leerdoel->addToetsmomentBovenEindexamenniveau($toetsmoment);
+                }
+            }
+
+            $newone->addLeerdoel($leerdoel);
+        }
 
         return $newone;
     }
