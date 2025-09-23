@@ -6,30 +6,7 @@ function filterOnlyLetters($string){
 }
 
 function renderRapport($student, $leerdoelPlanning, $aantalPeriodes = 12) {
-    ?>
     
-    <style>
-        td{
-            border: 1px solid black;
-        }
-
-        .toetsniveau_0 {
-            background-color: grey;
-        }
-        .toetsniveau_1 {
-            background-color: lightblue;
-        }
-        .toetsniveau_2 {
-            background-color: lightgreen;
-        }
-        .toetsniveau_3 {
-            background-color: orange;
-        }
-    </style>
-    <?php
-
-    var_dump($student->resultaten);
-
     echo "<script type='text/javascript'>\n";
     echo "let resultaten = {};\n";
     $index = 0;
@@ -56,27 +33,31 @@ function renderRapport($student, $leerdoelPlanning, $aantalPeriodes = 12) {
     echo "<form id='resultaten_form'></form>";
 
     echo "<table>";
-    echo "<tr><th>Leerdoel</th>";
+    foreach ($leerdoelPlanning->getAll() as $categorie => $leerdoelen) {
+        echo "<tr><th colspan='" . ($aantalPeriodes + 2) . "'>" . htmlspecialchars($categorie) . "</th></tr>";
+        
+        echo "<tr><th>Leerdoel</th>";
 
-    echo "<th></th>";
-    for ($p = 1; $p <= $aantalPeriodes; $p++) {
-        echo "<th>Periode $p</th>";
-    }
-    echo "</tr>";
-
-    foreach ($leerdoelPlanning->getAll() as $leerdoel) {
-        $leerdoelAsClass = 'leerdoel_' . filterOnlyLetters($leerdoel->naam);
-        echo "<tr id='$leerdoelAsClass'>";
-        echo "<td>" . htmlspecialchars($leerdoel->naam) . "</td>";
-        echo "<td class='toetsniveau_0 periode_0 rapportcell first last'></td>";
+        echo "<th></th>";
         for ($p = 1; $p <= $aantalPeriodes; $p++) {
-            $toetsniveau = $leerdoel->getToetsNiveauInPeriode($p);
-            echo "<td class='toetsniveau_$toetsniveau periode_$p rapportcell " .
-            ($leerdoel->getFirstToetsNiveauPeriode($toetsniveau) == $p ? "first " : "") .
-            ($leerdoel->getLastToetsNiveauPeriode($toetsniveau) == $p ? "last " : "") .
-            "'>";
+            echo "<th>Periode $p</th>";
         }
         echo "</tr>";
+
+        foreach ($leerdoelen as $leerdoel) {
+            $leerdoelAsClass = 'leerdoel_' . filterOnlyLetters($leerdoel->naam);
+            echo "<tr id='$leerdoelAsClass'>";
+            echo "<td>" . htmlspecialchars($leerdoel->naam) . "</td>";
+            echo "<td class='toetsniveau_0 periode_0 rapportcell first last'></td>";
+            for ($p = 1; $p <= $aantalPeriodes; $p++) {
+                $toetsniveau = $leerdoel->getToetsNiveauInPeriode($p);
+                echo "<td class='toetsniveau_$toetsniveau periode_$p rapportcell " .
+                ($leerdoel->getFirstToetsNiveauPeriode($toetsniveau) == $p ? "first " : "") .
+                ($leerdoel->getLastToetsNiveauPeriode($toetsniveau) == $p ? "last " : "") .
+                "'>";
+            }
+            echo "</tr>";
+        }
     }
     echo "</table>";
 }

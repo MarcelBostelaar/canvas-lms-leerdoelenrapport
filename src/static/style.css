@@ -8,7 +8,7 @@
 
 .niveau_indicator{
     width: 10px;
-    height: 100%;
+    height: 1em;
     background-color: black;
     border-width: 1px;
     border-color: white;
@@ -16,8 +16,24 @@
 }
 
 td{
-    height: 1em;
+    height: 1.5em;
     padding: 0;
+    border: 1px solid black;
+
+}
+
+
+.toetsniveau_0 {
+    background-color: grey;
+}
+.toetsniveau_1 {
+    background-color: lightblue;
+}
+.toetsniveau_2 {
+    background-color: lightgreen;
+}
+.toetsniveau_3 {
+    background-color: orange;
 }
 
 /*Marker indicators*/
