@@ -2,20 +2,113 @@ function onlyalfanumeric(string){
     return string.replace(/[^a-zA-Z0-9]/gi, '');
 }
 
-function createResultMarkers(label){
-    let data = resultaten[label];
-    data.forEach((element, leerdoelnaam) => {
+function createResultMarkers(label, data, colorClass){
+    // console.log("Test: ", label);
+    for (let leerdoelnaam in data) {
         let rij = document.getElementById("leerdoel_" + onlyalfanumeric(leerdoelnaam));
+        // console.log(rij);
         let teLabelen = rij
-            .getElementsByClassName("toetsniveau_" + element["niveau"].toString())
-            .getElementsByClassName("last")[0];
-        let newElement = new HTMLDivElement();
+            .querySelectorAll(".toetsniveau_" + data[leerdoelnaam]["niveau"].toString() + ".last")[0];
+            // console.log(teLabelen);
+        let newElement = document.createElement("div");
         newElement.classList.add("controller_" + onlyalfanumeric(label));
-        teLabelen.children.add(newElement);
-        newElement.innerHTML = "HDSJJFKDS";
+        newElement.classList.add("generated");
+        newElement.classList.add("niveau_indicator");
+        newElement.classList.add(colorClass);
+        addMHEvents(newElement, colorClass);
+
+        teLabelen.appendChild(newElement);
+    };
+}
+
+function createMarkerSelector(label, colorClass, index){
+    let idGenerated = "collection" + onlyalfanumeric(label);
+    let labelele = document.createElement("label");
+    labelele.setAttribute("for", idGenerated);
+    labelele.classList.add(colorClass);
+    labelele.innerHTML = label;
+    let input = document.createElement("input");
+    input.setAttribute("id", idGenerated);
+    input.setAttribute("type", "checkbox");
+    input.setAttribute("checked", true);
+    input.onchange = () => toggleShow(index);
+
+    addMHEvents(labelele, colorClass);
+    addMHEvents(input, colorClass);
+
+    let form = document.getElementById("resultaten_form");
+    form.append(input);
+    form.append(labelele);
+    form.append(document.createElement("br"));
+}
+
+function deleteGeneratedMarkers(){
+    Array.from(document.getElementsByClassName("generated")).forEach(item => {
+        item.remove();
     });
 }
 
+function toggleShow(index){
+    resultaten[index]["show"] = !resultaten[index]["show"];
+    refreshMarkers();
+}
+
+function refreshMarkers(){
+    deleteGeneratedMarkers();
+    resultaten.forEach(container => {
+        if(container["show"]){
+            createResultMarkers(container["label"], container["data"], container["color_class"])
+        }
+    });
+}
+
+
+//Highlighting functionality
+const hm = "highlight_marker";
+const hm_fade = "highlight_marker_fade"
+function onMarkerUnhover(){
+    Array.from(document.getElementsByClassName(hm))
+    .forEach(item => item.classList.remove(hm));
+    Array.from(document.getElementsByClassName(hm_fade))
+    .forEach(item => item.classList.remove(hm_fade))
+}
+
+function onMarkerHover(color_class){
+    onMarkerUnhover();
+    Array.from(document.getElementsByClassName(color_class))
+    .forEach(item =>{
+        item.classList.add(hm);
+    });
+    Array.from(document.getElementsByClassName("niveau_indicator"))
+    .forEach(item =>{
+        if(item.classList.contains(hm)){
+            return;
+        }
+        item.classList.add(hm_fade);
+    });
+}
+
+function addMHEvents(item, colorClass){
+    item.onmouseover = () => onMarkerHover(colorClass);
+    item.onmouseleave = () => onMarkerUnhover();
+}
+
+
+//Startup
 document.addEventListener("DOMContentLoaded", ()=> {
-    resultaten.forEach((_, index) => createResultMarkers(index));
+    let colorIndex = 0;
+    let newResultaten = [];
+    for (let label in resultaten){
+        let colorClass = "color_" + colorIndex.toString();
+        newResultaten.push({
+            "label" : label,
+            "color_class" : colorClass,
+            "data": resultaten[label],
+            "show": true
+        });
+        createMarkerSelector(label, colorClass, colorIndex);
+        colorIndex++;
+    }
+    resultaten = newResultaten;
+    refreshMarkers();
 });

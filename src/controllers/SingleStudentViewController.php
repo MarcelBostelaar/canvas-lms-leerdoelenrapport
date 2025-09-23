@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../models/Leerdoel.php';
 require_once __DIR__ . '/../models/LeerdoelPlanning.php';
 require_once __DIR__ . '/../models/Student.php';
-require_once __DIR__ . '/../controllers/CanvasReader.php';
+require_once __DIR__ . '/../services/CanvasReader.php';
+require_once __DIR__ . '/../services/LeerdoelPlanningProvider.php';
 require_once __DIR__ . '/../views/Rapport.php';
 
 class SingleStudentViewController{
@@ -13,8 +14,8 @@ class SingleStudentViewController{
     }
 
     public function render() {
-        $Leerdoelen = LeerdoelPlanning::loadFromFile();
-        $CanvasReader = CanvasReader::fromEnv();
+        $Leerdoelen = LeerdoelPlanningProvider::getPlanning();
+        $CanvasReader = CanvasReader::getReader();
         $student = $CanvasReader->readStudent($this->studentID);
         renderRapport($student, $Leerdoelen);
     }

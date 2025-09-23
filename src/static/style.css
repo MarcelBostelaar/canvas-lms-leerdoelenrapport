@@ -1,0 +1,37 @@
+.highlight_marker{
+    /* background-color: ; */
+}
+
+.highlight_marker_fade{
+    background-color: rgb(210, 210, 210) !important;
+}
+
+.niveau_indicator{
+    width: 10px;
+    height: 100%;
+    background-color: black;
+    border-width: 1px;
+    border-color: white;
+    content: ".";
+}
+
+td{
+    height: 1em;
+    padding: 0;
+}
+
+/*Marker indicators*/
+.color_0{
+    color: red;
+}
+
+.niveau_indicator.color_0{
+    background-color: red;
+}
+.color_1{
+    color: blue;
+}
+
+.niveau_indicator.color_1{
+    background-color: blue;
+}

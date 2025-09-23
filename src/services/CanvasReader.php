@@ -21,10 +21,16 @@ class CanvasReader{
         array_push($student->resultaten, $newresult);
         $newresult->add("Naam1", Niveau::Gevorderde, 4);
         $newresult->add("Naam2", Niveau::Beginner, 2);
+        
+        $newresult = new LeerdoelResultaat();
+        $newresult->beschrijving = "Project 1";
+        array_push($student->resultaten, $newresult);
+        $newresult->add("Naam1", Niveau::Beginner, 3);
+        $newresult->add("Naam2", Niveau::NietBehaald, 1);
         return $student;
     }
 
-    public static function fromEnv() : CanvasReader {
+    public static function getReader() : CanvasReader {
         $apiKey = getenv('APIKEY');
         $courseURL = getenv('courseURL');
         return new CanvasReader($apiKey, $courseURL);
