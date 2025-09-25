@@ -16,7 +16,7 @@ class Leerdoel{
     public $beschrijvingen = [];
     public $toetsmomenten = [];
     PUBLIC $meesterschapsNiveau = null;
-    public $optelModel = null;
+    public $optelModel = optelModel::Null;
     public $id_in_canvas = null;
     public $leeruitkomstIDInCanvas = null;
 

@@ -10,7 +10,9 @@ class LeerdoelPlanningProvider{
     public static function getPlanning(CanvasReader $canvasreader) : LeerdoelPlanning {
         $loaded = self::loadFromFile();
         $canvasdata = self::getLeerdoelenFromCanvas($canvasreader);
-        return self::merge($canvasdata, $loaded);
+        $merged = self::merge($canvasdata, $loaded);
+        $merged->debugPopulateMissingToetsmomenten();
+        return $merged;
     }
 
     private static function getLeerdoelenFromCanvas(CanvasReader $canvasreader) : LeerdoelPlanning {
@@ -21,7 +23,6 @@ class LeerdoelPlanningProvider{
             $name = $item["description"];
             $canvasID = $item["id"];
             $canvasLeeruitkomstID = $item["learning_outcome_id"];
-            $max_points = $item["points"];
             $mastery_points = $item["mastery_points"];
             $newLeerdoel = new Leerdoel();
             $newLeerdoel->naam = $name;
@@ -40,7 +41,7 @@ class LeerdoelPlanningProvider{
         return $newPlanning;
     }
 
-    public static function merge($A, LeerdoelPlanning $B){
+    private static function merge($A, LeerdoelPlanning $B){
         $newPlanning = new LeerdoelPlanning();
         // Match up leerdoelen by name and merge them using the mergeLeerdoelen static function
 
@@ -103,7 +104,8 @@ class LeerdoelPlanningProvider{
         }
 
         //Choose the optelModel that is not Null
-        $optelModel = ($a->optelModel != optelModel::Null) ? $a->optelModel : $b->optelModel;
+        $optelModel = ($a->optelModel != optelModel::Null && $a->optelModel != null) ? $a->optelModel : $b->optelModel;
+
         $id_in_canvas = ($a->id_in_canvas != null) ? $a->id_in_canvas : $b->id_in_canvas;
 
         $newLeerdoel = new Leerdoel();
@@ -133,12 +135,16 @@ class LeerdoelPlanningProvider{
 
         $newone = new LeerdoelPlanning();
 
-        foreach ($data['leerdoelen'] as $leerdoelData) { //TODO make more persmissive by just mapping any data onto the class if it exists.
+        foreach ($data['leerdoelen'] as $leerdoelData) {
             $leerdoel = new Leerdoel();
             $leerdoel->categorie = $leerdoelData['categorie'] ?? "";
             $leerdoel->naam = $leerdoelData['naam'] ?? "";
             $leerdoel->beschrijvingen = $leerdoelData['beschrijvingen'] ?? [];
-            $leerdoel->optelModel = isset($leerdoelData['optelModel']) ? optelModel::from($leerdoelData['optelModel']) : null;
+            if(isset($leerdoelData['optelModel'])){
+                echo "optelmodel: " . $leerdoelData["optelModel"] . "<br/>";
+            }
+            $leerdoel->optelModel = optelModel::from($leerdoelData['optelModel'] ?? "Null");
+            echo "optelmodel gerealiseerd: " . $leerdoel->optelModel->value . "<br/>";
             $leerdoel->toetsmomenten = $leerdoelData['toetsmomenten'] ?? [];
             $newone->addLeerdoel($leerdoel);
         }

@@ -2,7 +2,8 @@
 
 
 class LeerdoelPlanning{
-    private $leerdoelPlanning = [];
+    /** @var Leerdoel[][] $leerdoelPlanning */
+    private array $leerdoelPlanning = [];
 
     public function addLeerdoel(Leerdoel $leerdoel){
         if(!isset($this->leerdoelPlanning[$leerdoel->categorie])){
@@ -46,5 +47,17 @@ class LeerdoelPlanning{
             }
         }
         return null;
+    }
+
+    public function debugPopulateMissingToetsmomenten(){
+        foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
+            foreach($leerdoelen as $leerdoel){
+                for($i = 1; $i <= $leerdoel->meesterschapsNiveau; $i++){
+                    if(!isset($leerdoel->toetsmomenten[$i])){
+                        $leerdoel->addToetsmoment($i, $i);
+                    }
+                }
+            }
+        }
     }
 }

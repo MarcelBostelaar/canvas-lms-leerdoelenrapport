@@ -8,20 +8,23 @@ require_once __DIR__ . '/../util/CanvasCurlCalls.php';
 class CanvasReader{
     private $apiKey;
     private $courseURL;
+    private $baseURL;
     private $masterRubric;
 
-    public function __construct($apiKey, $courseURL, $masterRubric) {
+    public function __construct($apiKey, $baseURL, $courseID, $masterRubric) {
         $this->apiKey = $apiKey;
-        $this->courseURL = $courseURL;
+        $this->baseURL = $baseURL;
+        $this->courseURL = "$baseURL/courses/$courseID";
         $this->masterRubric = $masterRubric;
     }
 
     public static function getReader() : CanvasReader {
         $env = parse_ini_file('./../../.env');
         $apiKey = $env['APIKEY'];
-        $courseURL = $env['courseURL'];
+        $baseURL = $env['baseURL'];
+        $courseID = $env['courseID'];
         $masterRubric = $env['masterRubric'];
-        return new CanvasReader($apiKey, $courseURL, $masterRubric);
+        return new CanvasReader($apiKey, $baseURL, $courseID, $masterRubric);
     }
 
     public function fetchStrippedDownMasterRubric(){
@@ -68,5 +71,11 @@ class CanvasReader{
         $url = "$this->courseURL/assignments/$assignmentID";
         $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
         return $data["name"];
+    }
+
+    public function fetchOutcomeCalulations(){
+        $url = "$this->baseURL/outcomes/3036";
+        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        return $data;
     }
 }
