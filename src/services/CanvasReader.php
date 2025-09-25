@@ -73,8 +73,21 @@ class CanvasReader{
         return $data["name"];
     }
 
-    public function fetchOutcomeCalulations(){
-        $url = "$this->baseURL/outcomes/3036";
+    public function fetchAllOutcomeGroups(){
+        $url = "$this->courseURL/outcome_groups";
+        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        return $data;
+    }
+
+    public function fetchOutcomesOfGroup( $groupID ){
+        $url = "$this->courseURL/outcome_groups/$groupID/outcomes";
+        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        $data = array_map(function($x){return $x["outcome"];}, $data);
+        return $data;
+    }
+
+    public function fetchOutcome($id){
+        $url = "$this->baseURL/outcomes/$id";
         $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
         return $data;
     }

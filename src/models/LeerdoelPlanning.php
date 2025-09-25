@@ -2,21 +2,28 @@
 
 
 class LeerdoelPlanning{
-    /** @var Leerdoel[][] $leerdoelPlanning */
+    public $categorie;
+    public $children = [];
+
+
+    //TODO reimplement as flat collection that also can have subcategories, which are also LeerdoelPlanning objects.
+    /** @var Leerdoel[] $leerdoelPlanning */
     private array $leerdoelPlanning = [];
 
     public function addLeerdoel(Leerdoel $leerdoel){
-        if(!isset($this->leerdoelPlanning[$leerdoel->categorie])){
-            $this->leerdoelPlanning[$leerdoel->categorie] = [];
-        }
-        array_push($this->leerdoelPlanning[$leerdoel->categorie], $leerdoel);
+        $this->leerdoelPlanning[$leerdoel->naam] = $leerdoel;
     }
 
     public function getAll(){
         return $this->leerdoelPlanning;
     }
 
+    public function addChildGroup(LeerdoelPlanning $leerdoelGroup){
+        $this->children[ $leerdoelGroup->categorie] = $leerdoelGroup;
+    }
+
     public function getLeerdoelByCanvasID($canvasID): ?Leerdoel{
+        throw new Exception("Not implemented");
         foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
             foreach($leerdoelen as $leerdoel ){
                 if($leerdoel->id_in_canvas == $canvasID){
@@ -28,6 +35,7 @@ class LeerdoelPlanning{
     }
 
     public function getLeeruitkomstByCanvasID($canvasLeeruitkomstID): ?Leerdoel{
+        throw new Exception("Not implemented");
         foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
             foreach($leerdoelen as $leerdoel ){
                 if($leerdoel->leeruitkomstIDInCanvas == $canvasLeeruitkomstID){
@@ -39,6 +47,7 @@ class LeerdoelPlanning{
     }
 
     public function getLeerdoelByName($name): ?Leerdoel{
+        throw new Exception("Not implemented");
         foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
             foreach($leerdoelen as $leerdoel){
                 if($leerdoel->naam == $name){
@@ -50,6 +59,7 @@ class LeerdoelPlanning{
     }
 
     public function debugPopulateMissingToetsmomenten(){
+        throw new Exception("Not implemented");
         foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
             foreach($leerdoelen as $leerdoel){
                 for($i = 1; $i <= $leerdoel->meesterschapsNiveau; $i++){

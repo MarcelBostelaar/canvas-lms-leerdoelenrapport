@@ -1,11 +1,6 @@
 <?php
 
 class LeerdoelPlanningProvider{
-    private $id_to_leerdoel = [];
-
-    public function getLeerdoelById($id){
-        return $this->id_to_leerdoel[$id];
-    }
 
     public static function getPlanning(CanvasReader $canvasreader) : LeerdoelPlanning {
         $loaded = self::loadFromFile();
@@ -140,11 +135,7 @@ class LeerdoelPlanningProvider{
             $leerdoel->categorie = $leerdoelData['categorie'] ?? "";
             $leerdoel->naam = $leerdoelData['naam'] ?? "";
             $leerdoel->beschrijvingen = $leerdoelData['beschrijvingen'] ?? [];
-            if(isset($leerdoelData['optelModel'])){
-                echo "optelmodel: " . $leerdoelData["optelModel"] . "<br/>";
-            }
             $leerdoel->optelModel = optelModel::from($leerdoelData['optelModel'] ?? "Null");
-            echo "optelmodel gerealiseerd: " . $leerdoel->optelModel->value . "<br/>";
             $leerdoel->toetsmomenten = $leerdoelData['toetsmomenten'] ?? [];
             $newone->addLeerdoel($leerdoel);
         }
