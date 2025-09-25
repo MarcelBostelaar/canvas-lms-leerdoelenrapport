@@ -40,7 +40,6 @@ function _curlCallUncached($url, $apiKey) {
     if (curl_errno($ch)) {
         echo "cURL Error: " . curl_error($ch);
     } else {
-        // var_dump($response); // raw response
         $data = json_decode($response, true);
     }
 

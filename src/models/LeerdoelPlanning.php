@@ -15,9 +15,9 @@ class LeerdoelPlanning{
         return $this->leerdoelPlanning;
     }
 
-    public function getLeerdoelByCanvasID($canvasID){
+    public function getLeerdoelByCanvasID($canvasID): ?Leerdoel{
         foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
-            foreach($leerdoelen as $leerdoel){
+            foreach($leerdoelen as $leerdoel ){
                 if($leerdoel->id_in_canvas == $canvasID){
                     return $leerdoel;
                 }
@@ -26,7 +26,18 @@ class LeerdoelPlanning{
         return null;
     }
 
-    public function getLeerdoelByName($name){
+    public function getLeeruitkomstByCanvasID($canvasLeeruitkomstID): ?Leerdoel{
+        foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
+            foreach($leerdoelen as $leerdoel ){
+                if($leerdoel->leeruitkomstIDInCanvas == $canvasLeeruitkomstID){
+                    return $leerdoel;
+                }
+            }
+        }
+        return null;
+    }
+
+    public function getLeerdoelByName($name): ?Leerdoel{
         foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
             foreach($leerdoelen as $leerdoel){
                 if($leerdoel->naam == $name){

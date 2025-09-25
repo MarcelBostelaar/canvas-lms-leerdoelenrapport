@@ -9,15 +9,14 @@ function renderRapport($student, $leerdoelPlanning, $aantalPeriodes = 12) {
     
     echo "<script type='text/javascript'>\n";
     echo "let resultaten = {};\n";
-    $index = 0;
     foreach($student->resultaten as $resultaat){
         ?>
         resultaten["<?php echo $resultaat->beschrijving;?>"] = {
             <?php
             foreach($resultaat->getAll() as $naam => $content){ ?>
             "<?php echo $naam;?>" : {
-                "niveau" : <?php echo $content["niveau"]->value?>,
-                "periode" : <?php echo $content["periode"]?>
+                "niveau" : <?php echo $content["niveau"]?>,
+                "periode" : <?php echo '"' . $content["datum"]->format('Y-m-d') . '"'?>
             },
             <?php } ?>
         };

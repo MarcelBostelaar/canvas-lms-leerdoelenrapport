@@ -20,12 +20,14 @@ class LeerdoelPlanningProvider{
         foreach($canvasdata as $item){
             $name = $item["description"];
             $canvasID = $item["id"];
+            $canvasLeeruitkomstID = $item["learning_outcome_id"];
             $max_points = $item["points"];
             $mastery_points = $item["mastery_points"];
             $newLeerdoel = new Leerdoel();
             $newLeerdoel->naam = $name;
             $newLeerdoel->id_in_canvas = $canvasID;
             $newLeerdoel->meesterschapsNiveau = $mastery_points;
+            $newLeerdoel->leeruitkomstIDInCanvas = $canvasLeeruitkomstID;
             
             foreach($item["ratings"] as $rating){
                 $niveau = $rating["points"];

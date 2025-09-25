@@ -17,11 +17,12 @@ class SingleStudentViewController{
     public function render() {
         $CanvasReader = CanvasReader::getReader();
         $StudentReader = new StudentProvider($CanvasReader);
-        $Leerdoelen = LeerdoelPlanningProvider::getPlanning($CanvasReader);
         echo "<pre>";
-        var_dump($Leerdoelen);
+        var_dump($StudentReader->getStudentMasteryByID($this->studentID));
         echo "</pre>";
+        $Leerdoelen = LeerdoelPlanningProvider::getPlanning($CanvasReader);
         $student = $StudentReader->getFullStudentByID($this->studentID);
+
         renderRapport($student, $Leerdoelen);
     }
 }

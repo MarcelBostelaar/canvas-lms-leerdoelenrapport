@@ -43,9 +43,6 @@ class CanvasReader{
         
         //May be cached globally, not sensitive to student
         $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //cached for 1 day
-        // echo "<pre>";
-        // echo json_encode($data, JSON_PRETTY_PRINT); // rubric details
-        // echo "</pre>";
         return $data;
     }
 
@@ -65,5 +62,11 @@ class CanvasReader{
         $url = "$this->courseURL/users/$studentID";
         $data = curlCall($url, $this->apiKey, 60*60*24); //Cache for 1 day
         return $data;
+    }
+
+    public function fetchAssignmentName($assignmentID){
+        $url = "$this->courseURL/assignments/$assignmentID";
+        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        return $data["name"];
     }
 }

@@ -3,13 +3,16 @@ function onlyalfanumeric(string){
 }
 
 function createResultMarkers(label, data, colorClass){
-    // console.log("Test: ", label);
     for (let leerdoelnaam in data) {
         let rij = document.getElementById("leerdoel_" + onlyalfanumeric(leerdoelnaam));
-        // console.log(rij);
         let teLabelen = rij
             .querySelectorAll(".toetsniveau_" + data[leerdoelnaam]["niveau"].toString() + ".last")[0];
-            // console.log(teLabelen);
+
+        if(teLabelen == undefined){
+            console.warn("Could not find cell for " + leerdoelnaam + " with level " + data[leerdoelnaam]["niveau"]);
+            continue;
+        }
+
         let newElement = document.createElement("div");
         newElement.classList.add("controller_" + onlyalfanumeric(label));
         newElement.classList.add("generated");
