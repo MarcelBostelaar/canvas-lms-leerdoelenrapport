@@ -14,7 +14,7 @@ class LeerdoelPlanningProvider{
         return $loaded;
     }
 
-    public static function addIdsFromCanvasData($canvasData, LeerdoelPlanning $leerdoelPlanning){
+    private static function addIdsFromCanvasData($canvasData, LeerdoelPlanning $leerdoelPlanning){
         foreach($leerdoelPlanning->getAll() as $categorie => $leerdoelen){
             foreach($leerdoelen as $leerdoel){
                 if(!isset($canvasData[$leerdoel->naam])){

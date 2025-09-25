@@ -12,8 +12,8 @@ class LeerdoelResultaat{
     public function __construct() {
         $this->map = [];
     }
-    public function add(string $leerdoel, niveau $niveau, $periode) {
-        $this->map[$leerdoel] = ["niveau" => $niveau, "periode" => $periode];
+    public function add(string $leerdoel, niveau $niveau, $datum) {
+        $this->map[$leerdoel] = ["niveau" => $niveau, "datum" => $datum];
     }
 
     public function getBehaaldNiveau(string $leerdoel): Niveau {
