@@ -3,62 +3,7 @@
 require_once __DIR__ . '/../models/Student.php';
 require_once __DIR__ . '/../models/LeerdoelResultaat.php';
 require_once __DIR__ . '/../util/caching.php';
-
-function curlCall($url, $apiKey, $cacheExpiresInSeconds = 0){
-    return cached_call(
-        '_curlCallUncached',
-        [$url, $apiKey],
-        $cacheExpiresInSeconds
-    );
-}
-
-function _curlCallUncached($url, $apiKey) {
-    var_dump($url);
-    echo "<br>";
-    var_dump($apiKey);
-    echo "<br>";
-
-    // Initialize cURL
-    $ch = curl_init($url);
-
-    // Set headers
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Authorization: Bearer $apiKey",
-        "Content-Type: application/json"
-    ]);
-
-    // Return response instead of outputting
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    // Execute
-    $response = curl_exec($ch);
-
-    // Handle errors
-    if (curl_errno($ch)) {
-        echo "cURL Error: " . curl_error($ch);
-    } else {
-        // var_dump($response); // raw response
-        $data = json_decode($response, true);
-    }
-
-    // Close
-    curl_close($ch);
-    if(isset($data["errors"])){
-        $errors = "";
-        foreach($data["errors"] as $message){
-            $errors .= $message["message"] . "\n";
-        }
-        throw new Exception($errors);
-    }
-    return $data;
-}
-
-//May be cached, not sensitive to student
-function _fetchMasterRubricInternalUncached($courseURL, $apiKey, $masterRubricID){
-    $url = "$courseURL/rubrics/$masterRubricID";
-    $data = curlCall($url, $apiKey);
-    return $data;
-}
+require_once __DIR__ . '/../util/CanvasCurlCalls.php';
 
 class CanvasReader{
     private $apiKey;
@@ -77,9 +22,9 @@ class CanvasReader{
         // echo json_encode($data, JSON_PRETTY_PRINT); // rubric details
         // echo "</pre>";
         $data = $this->fetchStudentResults($studentID);
-        echo "<pre>";
-        echo json_encode($data, JSON_PRETTY_PRINT); // rubric details
-        echo "</pre>";
+        // echo "<pre>";
+        // echo json_encode($data, JSON_PRETTY_PRINT); // rubric details
+        // echo "</pre>";
 
 
         // Dummy data for now
@@ -109,7 +54,6 @@ class CanvasReader{
 
     public function fetchStrippedDownMasterRubric(){
         $data = $this->fetchMasterRubric();
-        // var_dump($data);
         $data = $data['data'];
 
         $newlist = [];
@@ -123,11 +67,10 @@ class CanvasReader{
     }
 
     private function fetchMasterRubric(){
-        return cached_call(
-            '_fetchMasterRubricInternalUncached',
-            [$this->courseURL, $this->apiKey, $this->masterRubric],
-            86400 //Cache for 1 day
-        );
+        $url = "$this->courseURL/rubrics/$this->masterRubric";
+        
+        //May be cached globally, not sensitive to student
+        return curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //cached for 1 day
     }
 
     private function fetchStudentResults($studentID){

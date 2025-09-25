@@ -1,11 +1,17 @@
 <?php
-function cached_call($function, array $args = [], int $expirationDateInSeconds = 60) {
-    return cached_call_sessionbased($function, $args, $expirationDateInSeconds);
+function cached_call($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = []) {
+    return cached_call_sessionbased($function, $args, $expirationDateInSeconds, $ignoreKeysInPos);
     
     //APCU is not available on all systems, disabled for now
+    
+    $newKeyArgs = [];
+    for ($i = 0; $i < count($args); $i++){
+        if (!in_array($i, $ignoreKeysInPos)) {
+            array_push($newKeyArgs, $args[$i]);
+        }
+    }
 
-
-    $key = md5(serialize([$function, $args]));
+    $key = md5(serialize([$function, $newKeyArgs]));
 
     if (($result = apcu_fetch($key)) !== false) {
         return $result;
@@ -17,14 +23,22 @@ function cached_call($function, array $args = [], int $expirationDateInSeconds =
     return $result;
 }
 
-function cached_call_sessionbased($function, array $args = [], int $expirationDateInSeconds = 60) {
+function cached_call_sessionbased($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = []) {
     if(!session_id()) session_start();
     
     if (!isset($_SESSION['cache'])) {
         // echo "New cache total";
         $_SESSION['cache'] = [];
     }
-    $key = md5(serialize([$function, $args]));
+
+    $newKeyArgs = [];
+    for ($i = 0; $i < count($args); $i++){
+        if (!in_array($i, $ignoreKeysInPos)) {
+            array_push($newKeyArgs, $args[$i]);
+        }
+    }
+    
+    $key = md5(serialize([$function, $newKeyArgs]));
 
     if (isset($_SESSION['cache'][$key])) {
         if ($_SESSION['cache'][$key]["expires_at"] > time()) {
