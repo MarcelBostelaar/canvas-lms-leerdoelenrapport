@@ -24,8 +24,8 @@ function renderRapport($student, $leerdoelPlanning, $aantalPeriodes = 12) {
         <?php
     }
     echo "</script>";
-    echo "<script src='./../static/singlestudentview.js' type='text/javascript'></script>";
-    echo '<link rel="stylesheet" href="./../static/style.css">';
+    echo "<script src='/static/singlestudentview.js' type='text/javascript'></script>";
+    echo '<link rel="stylesheet" href="/static/style.css">';
 
 
     echo "<h2>Student: " . htmlspecialchars($student->naam) . "</h2>";
