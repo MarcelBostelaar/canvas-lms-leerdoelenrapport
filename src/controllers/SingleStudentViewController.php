@@ -18,6 +18,9 @@ class SingleStudentViewController{
         $CanvasReader = CanvasReader::getReader();
         $StudentReader = new StudentProvider($CanvasReader);
         $Leerdoelen = LeerdoelPlanningProvider::getPlanning($CanvasReader);
+        echo "<pre>";
+        var_dump($Leerdoelen);
+        echo "</pre>";
         $student = $StudentReader->getFullStudentByID($this->studentID);
         renderRapport($student, $Leerdoelen);
     }

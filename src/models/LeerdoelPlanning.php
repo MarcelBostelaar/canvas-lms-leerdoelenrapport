@@ -25,4 +25,15 @@ class LeerdoelPlanning{
         }
         return null;
     }
+
+    public function getLeerdoelByName($name){
+        foreach($this->leerdoelPlanning as $categorie => $leerdoelen){
+            foreach($leerdoelen as $leerdoel){
+                if($leerdoel->naam == $name){
+                    return $leerdoel;
+                }
+            }
+        }
+        return null;
+    }
 }

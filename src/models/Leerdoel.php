@@ -1,85 +1,55 @@
 <?php
 
-enum optelModel {
-    case Hoogste;
-    case RunningAverage;
-    case Altijd;
+enum optelModel : string {
+    case Hoogste = "Hoogste";
+    case RunningAverage = "RunningAverage";
+    case Altijd = "Altijd";
+    case Null = "Null";
 }
 
 /**
  * Individueel leerdoel
  */
 class Leerdoel{
-    public $categorie;
-    public $naam;
-    public $beginnerBeschrijving;
-    public $gevorderdeBeschrijving;
-    public $eindexamenniveauBeschrijving;
-    public $bovenEindniveauBeschrijving;
-    public $optelModel;
-    public $toetsmomentenBeginner = [];
-    public $toetsmomentenGevorderde = [];
-    public $toetsmomentenEindexamenniveau = [];
+    public $categorie = "";
+    public $naam = "";
+    public $beschrijvingen = [];
+    public $toetsmomenten = [];
+    PUBLIC $meesterschapsNiveau = null;
+    public $optelModel = null;
     public $id_in_canvas = null;
 
-    public function __construct($categorie, $naam, $beginnerBeschrijving, $gevorderdeBeschrijving, $eindexamenniveauBeschrijving, $bovenEindniveauBeschrijving, $optelModel) {
-        $this->categorie = $categorie;
-        $this->naam = $naam;
-        $this->beginnerBeschrijving = $beginnerBeschrijving;
-        $this->gevorderdeBeschrijving = $gevorderdeBeschrijving;
-        $this->eindexamenniveauBeschrijving = $eindexamenniveauBeschrijving;
-        $this->bovenEindniveauBeschrijving = $bovenEindniveauBeschrijving;
-        $this->optelModel = $optelModel;
+    public function addToetsMoment($niveau, $periode){
+        if(!isset($this->toetsmomenten[$niveau])){
+            $this->toetsmomenten[$niveau] = [];
+        }
+        array_push($this->toetsmomenten[$niveau], $periode);
     }
 
-    public function addToetsmomentBeginner($periode) {
-        array_push($this->toetsmomentenBeginner, $periode);
-    }
-
-    public function addToetsmomentGevorderde($periode) {
-        array_push($this->toetsmomentenGevorderde, $periode);
-    }
-
-    public function addToetsmomentEindexamenniveau($periode) {
-        array_push($this->toetsmomentenEindexamenniveau, $periode);
+    public function addBeschrijving($niveau, $beschrijving){
+        $this->beschrijvingen[$niveau] = $beschrijving;
     }
 
     public function getToetsNiveauInPeriode($periode) : int{
-        if(in_array($periode, $this->toetsmomentenEindexamenniveau)){
-            return 3;
-        }
-        if(in_array($periode, $this->toetsmomentenGevorderde)){
-            return 2;
-        }
-        if(in_array($periode, $this->toetsmomentenBeginner)){
-            return 1;
+        foreach($this->toetsmomenten as $niveau => $periodes){
+            if(in_array($periode, $periodes)){
+                return $niveau;
+            }
         }
         return 0;
     }
 
     public function getLastToetsNiveauPeriode($niveau){
-        if($niveau == 3){
-            return empty($this->toetsmomentenEindexamenniveau) ? null : max($this->toetsmomentenEindexamenniveau);
+        if(!isset($this->toetsmomenten[$niveau]) || empty($this->toetsmomenten[$niveau])){
+            return null;
         }
-        if($niveau == 2){
-            return empty($this->toetsmomentenGevorderde) ? null : max($this->toetsmomentenGevorderde);
-        }
-        if($niveau == 1){
-            return empty($this->toetsmomentenBeginner) ? null : max($this->toetsmomentenBeginner);
-        }
-        return null;
+        return max($this->toetsmomenten[$niveau]);
     }
 
     public function getFirstToetsNiveauPeriode($niveau){
-        if($niveau == 3){
-            return empty($this->toetsmomentenEindexamenniveau) ? null : min($this->toetsmomentenEindexamenniveau);
+        if(!isset($this->toetsmomenten[$niveau]) || empty($this->toetsmomenten[$niveau])){
+            return null;
         }
-        if($niveau == 2){
-            return empty($this->toetsmomentenGevorderde) ? null : min($this->toetsmomentenGevorderde);
-        }
-        if($niveau == 1){
-            return empty($this->toetsmomentenBeginner) ? null : min($this->toetsmomentenBeginner);
-        }
-        return null;
+        return min($this->toetsmomenten[$niveau]);
     }
 }

@@ -38,11 +38,15 @@ class CanvasReader{
         return $newlist;
     }
 
-    private function fetchMasterRubric(){
+    public function fetchMasterRubric(){
         $url = "$this->courseURL/rubrics/$this->masterRubric";
         
         //May be cached globally, not sensitive to student
-        return curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //cached for 1 day
+        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //cached for 1 day
+        // echo "<pre>";
+        // echo json_encode($data, JSON_PRETTY_PRINT); // rubric details
+        // echo "</pre>";
+        return $data;
     }
 
     public function fetchStudentResults($studentID){

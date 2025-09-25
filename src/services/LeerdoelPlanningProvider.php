@@ -9,23 +9,111 @@ class LeerdoelPlanningProvider{
 
     public static function getPlanning(CanvasReader $canvasreader) : LeerdoelPlanning {
         $loaded = self::loadFromFile();
-        $canvasdata = $canvasreader->fetchStrippedDownMasterRubric();
-        self::addIdsFromCanvasData($canvasdata, $loaded);
-        return $loaded;
+        $canvasdata = self::getLeerdoelenFromCanvas($canvasreader);
+        return self::merge($canvasdata, $loaded);
     }
 
-    private static function addIdsFromCanvasData($canvasData, LeerdoelPlanning $leerdoelPlanning){
-        foreach($leerdoelPlanning->getAll() as $categorie => $leerdoelen){
-            foreach($leerdoelen as $leerdoel){
-                if(!isset($canvasData[$leerdoel->naam])){
-                    $alleLeerdoelenInCanvas = array_keys($canvasData);
-                    echo "Beschikbare leerdoelen in Canvas: <br>".implode(",<br> ", $alleLeerdoelenInCanvas)."\n";
-                    throw new Exception("Leerdoel naam '".$leerdoel->naam."' niet gevonden in Canvas data");
-                }
-                $leerdoel->id_in_canvas = $canvasData[$leerdoel->naam]['learning_outcome_id'];
-                $leerdoelPlanning->id_to_leerdoel[$leerdoel->id_in_canvas] = $leerdoel;
+    private static function getLeerdoelenFromCanvas(CanvasReader $canvasreader) : LeerdoelPlanning {
+        $canvasdata = $canvasreader->fetchMasterRubric()["data"];
+        $newPlanning = new LeerdoelPlanning();
+
+        foreach($canvasdata as $item){
+            $name = $item["description"];
+            $canvasID = $item["id"];
+            $max_points = $item["points"];
+            $mastery_points = $item["mastery_points"];
+            $newLeerdoel = new Leerdoel();
+            $newLeerdoel->naam = $name;
+            $newLeerdoel->id_in_canvas = $canvasID;
+            $newLeerdoel->meesterschapsNiveau = $mastery_points;
+            
+            foreach($item["ratings"] as $rating){
+                $niveau = $rating["points"];
+                $newLeerdoel->addBeschrijving($niveau, $rating["long_description"]);
+            }
+
+            $newPlanning->addLeerdoel($newLeerdoel);
+        }
+
+        return $newPlanning;
+    }
+
+    public static function merge($A, LeerdoelPlanning $B){
+        $newPlanning = new LeerdoelPlanning();
+        // Match up leerdoelen by name and merge them using the mergeLeerdoelen static function
+
+        //map them each to an array using their name as keys.        
+        //get array of all unique keys.
+        $allNames = array_unique(array_merge(
+            array_map(fn($ld) => $ld->naam, array_merge(...array_values($A->getAll()))),
+            array_map(fn($ld) => $ld->naam, array_merge(...array_values($B->getAll())))
+        ));
+
+        //Loop over them and merge if exists in both, otherwise add to the new planning.
+        foreach($allNames as $name){
+            $leerdoelA = $A->getLeerdoelByName($name);
+            $leerdoelB = $B->getLeerdoelByName($name);
+            if($leerdoelA != null && $leerdoelB != null){
+                //Both exist, merge them
+                $merged = self::mergeLeerdoelen($leerdoelA, $leerdoelB);
+                $newPlanning->addLeerdoel($merged);
+            } elseif ($leerdoelA != null) {
+                //Only in A
+                $newPlanning->addLeerdoel($leerdoelA);
+            } else {
+                //Only in B
+                $newPlanning->addLeerdoel($leerdoelB);
             }
         }
+        return $newPlanning;
+    }
+
+    private static function mergeLeerdoelen(Leerdoel $a, Leerdoel $b) : Leerdoel {
+        if($a->naam != $b->naam){
+            throw new Exception("Cannot merge different leerdoelen: '".$a->naam."' and '".$b->naam."'");
+        }
+
+        $categorie = ($a->categorie != "") ? $a->categorie : $b->categorie;
+
+        //Merge descriptions by taking the longest one
+        $beschrijvingen = [];
+        while(count($a->beschrijvingen) > 0 || count($b->beschrijvingen) > 0){
+            $beschrijving = "";
+            if(count($a->beschrijvingen) > 0){
+                $beschrijving = array_shift($a->beschrijvingen);
+            }
+            if(count($b->beschrijvingen) > 0){
+                $beschrijvingB = array_shift($b->beschrijvingen);
+                if(strlen($beschrijvingB) > strlen($beschrijving)){
+                    $beschrijving = $beschrijvingB;
+                }
+            }
+            array_push($beschrijvingen, $beschrijving);
+        }
+
+        $toetsmomentenTotal = [];
+        while(count($a->toetsmomenten) > 0 || count($b->toetsmomenten) > 0){
+            $namesa = (count($a->toetsmomenten) > 0) ? array_shift($a->toetsmomenten) : [];
+            $namesb = (count($b->toetsmomenten) > 0) ? array_shift($b->toetsmomenten) : [];
+            $toetsmomenten = array_unique(array_merge($namesa, $namesb));
+            sort($toetsmomenten);
+            array_push($toetsmomentenTotal, $toetsmomenten);
+        }
+
+        //Choose the optelModel that is not Null
+        $optelModel = ($a->optelModel != optelModel::Null) ? $a->optelModel : $b->optelModel;
+        $id_in_canvas = ($a->id_in_canvas != null) ? $a->id_in_canvas : $b->id_in_canvas;
+
+        $newLeerdoel = new Leerdoel();
+        $newLeerdoel->naam = $a->naam;
+        $newLeerdoel->categorie = $categorie;
+        $newLeerdoel->beschrijvingen = $beschrijvingen;
+        $newLeerdoel->toetsmomenten = $toetsmomentenTotal;
+        $newLeerdoel->optelModel = $optelModel;
+        $newLeerdoel->id_in_canvas = $id_in_canvas;
+        $newLeerdoel->meesterschapsNiveau = max($a->meesterschapsNiveau, $b->meesterschapsNiveau);
+
+        return $newLeerdoel;
     }
 
     private static function loadFromFile($filename = __DIR__ . '/../data/leerdoelen.json') : LeerdoelPlanning {
@@ -43,38 +131,13 @@ class LeerdoelPlanningProvider{
 
         $newone = new LeerdoelPlanning();
 
-        foreach ($data['leerdoelen'] as $leerdoelData) {
-            $leerdoel = new Leerdoel(
-                $leerdoelData['categorie'],
-                $leerdoelData['naam'],
-                $leerdoelData['beschrijvingBeginner'],
-                $leerdoelData['beschrijvingGevorderde'],
-                $leerdoelData['beschrijvingEindexamenniveau'],
-                $leerdoelData['beschrijvingBovenEindexamenniveau'],
-                constant('optelModel::' . $leerdoelData['optelModel'])
-            );
-
-            if (!empty($leerdoelData['toetsmomentenBeginner'])) {
-                foreach ($leerdoelData['toetsmomentenBeginner'] as $toetsmoment) {
-                    $leerdoel->addToetsmomentBeginner($toetsmoment);
-                }
-            }
-            if (!empty($leerdoelData['toetsmomentenGevorderde'])) {
-                foreach ($leerdoelData['toetsmomentenGevorderde'] as $toetsmoment) {
-                    $leerdoel->addToetsmomentGevorderde($toetsmoment);
-                }
-            }
-            if (!empty($leerdoelData['toetsmomentenEindexamenniveau'])) {
-                foreach ($leerdoelData['toetsmomentenEindexamenniveau'] as $toetsmoment) {
-                    $leerdoel->addToetsmomentEindexamenniveau($toetsmoment);
-                }
-            }
-            if (!empty($leerdoelData['toetsmomentenBovenEindexamenniveau'])) {
-                foreach ($leerdoelData['toetsmomentenBovenEindexamenniveau'] as $toetsmoment) {
-                    $leerdoel->addToetsmomentBovenEindexamenniveau($toetsmoment);
-                }
-            }
-
+        foreach ($data['leerdoelen'] as $leerdoelData) { //TODO make more persmissive by just mapping any data onto the class if it exists.
+            $leerdoel = new Leerdoel();
+            $leerdoel->categorie = $leerdoelData['categorie'] ?? "";
+            $leerdoel->naam = $leerdoelData['naam'] ?? "";
+            $leerdoel->beschrijvingen = $leerdoelData['beschrijvingen'] ?? [];
+            $leerdoel->optelModel = isset($leerdoelData['optelModel']) ? optelModel::from($leerdoelData['optelModel']) : null;
+            $leerdoel->toetsmomenten = $leerdoelData['toetsmomenten'] ?? [];
             $newone->addLeerdoel($leerdoel);
         }
 
