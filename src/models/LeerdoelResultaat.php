@@ -24,8 +24,8 @@ class LeerdoelResultaat{
 
     public function fillWithZeroForMissing(array $leerdoelen){
         foreach($leerdoelen as $leerdoel){
-            if(!isset($this->map[$leerdoel])){
-                $this->map[$leerdoel] = ["niveau" => 0, "datum" => new DateTime("1970-01-01")];
+            if(!isset($this->map[$leerdoel->naam])){
+                $this->map[$leerdoel->naam] = ["niveau" => 0, "datum" => new DateTime("1970-01-01")];
             }
         }
     }

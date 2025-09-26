@@ -1,6 +1,7 @@
 <?php
 
 class StudentProvider{
+    
     private $canvasReader;
 
     public function __construct(CanvasReader $canvasReader) {
@@ -11,44 +12,51 @@ class StudentProvider{
      * Returns the results per assignment for a given student.
      * @param mixed $studentID
      * @throws \Exception
-     * @return array
+     * @return LeerdoelResultaat[]
      */
-    private function getStudentResultByID($studentID){
-        $data = $this->canvasReader->fetchStudentResults($studentID);
-        $LeerdoelPlanning = LeerdoelPlanningProvider::getPlanning($this->canvasReader);
+    private function getStudentResultsByID($studentID): array{
+        $results = $this->canvasReader->fetchStudentSubmissions($studentID);
+        $leerdoelPlanning = LeerdoelenStructuurProvider::getStructuur($this->canvasReader);
 
-        $resultaten = [];
-        foreach($data as $beoordelingen){
-            if($beoordelingen["grade"] == null || $beoordelingen["graded_at"] == null){
-                continue; //Skip ungraded
+        //filter needed info to structs
+        $results = [];
+        foreach($results as $result){
+            if($result["workflow_state"] != "graded"){
+                continue; //Skip ungraded submissions
             }
-            //Beoordeling gedaan
-            if($beoordelingen["grade"] != "Beoordeeld"){
-                continue; //Skip non-passing grades
+
+            $assessmentResults = [];
+            foreach($result["rubric_assesment"] as $assesment){
+                $newAssessment = new AssessmentStruct($assesment["points"], $assesment["learning_outcome_id"]);
+                array_push($assessmentResults, $newAssessment);
             }
-            //Alleen afgemaakte beoordelingen
-            $resultaat = new LeerdoelResultaat();
-            $date = new DateTime($beoordelingen["graded_at"]);
-            foreach($beoordelingen["rubric_assessment"] as $rubricID => $resultDetails){
-                if(isset($resultDetails["points"])){
-                    //Beoordeeld leerdoel.
-                    $leerdoel = $LeerdoelPlanning->getLeerdoelByCanvasID($rubricID);
-                    if($leerdoel == null){
-                        throw new Exception("Onbekend leerdoel met canvasID " . $rubricID . " in rubric " . $rubricID);
-                    }
-                    $resultaat->add($leerdoel, $resultDetails["points"], $date);
+
+            $filteredInfo = new SubmissionStruct(
+                $result["assignment"]["name"],
+                strtotime($result["graded_at"]),
+                $assessmentResults
+            );
+
+            //finished filtering
+            $newResultaat = new LeerdoelResultaat();
+            $newResultaat->beschrijving = $filteredInfo->assignmentName;
+            foreach($filteredInfo->Assessment as $assessment){
+                $leerdoel = $leerdoelPlanning->getLeerdoelByCanvasID($assessment->learning_outcome_id);
+                if($leerdoel == null){
+                    echo "<span style='color: red'>Onbekend leerdoel met ID " . $assessment->learning_outcome_id . "</span><br>";
+                    continue;
                 }
+                $newResultaat->add($leerdoel, $assessment->score, $filteredInfo->gradedAt);
             }
-            //Fetch assignment name
-            $resultaat->beschrijving = $this->canvasReader->fetchAssignmentName($beoordelingen["assignment_id"]);
-            array_push($resultaten, $resultaat);
+
+            array_push($results, $newResultaat);
         }
-        return $resultaten;
+        return $results;
     }
 
     public function getStudentMasteryByID($studentID): LeerdoelResultaat{
         $data = $this->canvasReader->fetchStudentVakbeheersing($studentID);
-        $LeerdoelPlanning = LeerdoelPlanningProvider::getPlanning($this->canvasReader);
+        $LeerdoelPlanning = LeerdoelenStructuurProvider::getStructuur($this->canvasReader);
         
         $resultaat = new LeerdoelResultaat();
         $resultaat->beschrijving = "Totaal vakbeheersing";
@@ -57,7 +65,9 @@ class StudentProvider{
             $canvasID = $outcome["links"]["learning_outcome"];
             $leerdoel = $LeerdoelPlanning->getLeeruitkomstByCanvasID($canvasID);
             if($leerdoel == null){
-                throw new Exception("Onbekend leerdoel met canvasID " . $canvasID . " in outcome result");
+                echo "<span style='color: red'>Onbekend leerdoel met ID " . $canvasID . "</span><br>";
+                continue;
+                // throw new Exception("Onbekend leerdoel met canvasID " . $canvasID . " in outcome result");
             }
             $score = $outcome["score"];
             if($score == null){
@@ -65,7 +75,7 @@ class StudentProvider{
             }
             $resultaat->add($leerdoel, $score, new DateTime($outcome["submitted_or_assessed_at"]));
         }
-        $resultaat->fillWithZeroForMissing(array_map(fn($ld) => $ld->naam, array_merge(...array_values($LeerdoelPlanning->getAll()))));
+        $resultaat->fillWithZeroForMissing($LeerdoelPlanning->getAll());
         return $resultaat;
     }
 
@@ -73,7 +83,7 @@ class StudentProvider{
         $student = new Student();
         $student->naam = $this->canvasReader->fetchStudentDetails($studentID)['name'];
         $student->resultaten = [$this->getStudentMasteryByID($studentID)];
-        $student->resultaten = array_merge($student->resultaten, $this->getStudentResultByID($studentID));
+        $student->resultaten = array_merge($student->resultaten, $this->getStudentResultsByID($studentID));
         return $student;
     }
 }
