@@ -7,6 +7,11 @@ class LeerdoelResultaat{
         $this->map = [];
     }
     public function add(Leerdoel $leerdoel, int $niveau, $datum) {
+        if(is_numeric($datum)) {
+            $oldDate = $datum;
+            $datum = new DateTime();
+            $datum->setTimestamp($oldDate);
+        }
         $this->map[$leerdoel->naam] = ["niveau" => $niveau, "datum" => $datum, "leerdoel" => $leerdoel];
     }
 

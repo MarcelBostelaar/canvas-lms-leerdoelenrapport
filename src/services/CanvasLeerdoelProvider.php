@@ -8,7 +8,7 @@ class CanvasLeerdoelProvider{
         $this->canvasReader = $canvasReader;
     }
 
-    public function getTotal(){
+    public function getTotal(): LeerdoelenStructuur{
         $groupMap = [];
         $outcomeGroups = $this->canvasReader->fetchAllOutcomeGroups();
 

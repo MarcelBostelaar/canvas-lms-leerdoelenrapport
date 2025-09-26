@@ -7,7 +7,11 @@ class LeerdoelenStructuurProvider{
     public static function getStructuur(CanvasReader $canvasreader) : LeerdoelenStructuur {
         $loaded = self::loadFromFile();
         $canvasdata = (new CanvasLeerdoelProvider($canvasreader))->getTotal();
+        // echo "<pre>";
+        // var_dump($canvasdata);
+        // echo "</pre>";
         self::merge($canvasdata, $loaded);
+        
         $canvasdata->debugPopulateMissingToetsmomenten();
         return $canvasdata;
     }
@@ -23,13 +27,10 @@ class LeerdoelenStructuurProvider{
         foreach($B as $leerdoel){
             $other = $A->getLeerdoelByName($leerdoel->naam);
             if($other == null){
-                echo "<pre>";
-                    var_dump($A);
-                echo "</pre>";
                 throw new Exception("Cannot find leerdoel '".$leerdoel->naam."' in exisitng data");
             }
             $merged = self::mergeLeerdoelen($leerdoel, $other);
-            $A->addLeerdoel($merged);
+            $A->updateLeerdoel($merged);
         }
         return;
     }
@@ -67,7 +68,7 @@ class LeerdoelenStructuurProvider{
         //Choose the optelModel that is not Null
         $optelModel = ($a->optelModel != optelModel::Null && $a->optelModel != null) ? $a->optelModel : $b->optelModel;
 
-        $id_in_canvas = ($a->id_in_canvas != null) ? $a->id_in_canvas : $b->id_in_canvas;
+        $id_in_canvas = ($a->leeruitkomstIDInCanvas != null) ? $a->leeruitkomstIDInCanvas : $b->leeruitkomstIDInCanvas;
 
         $newLeerdoel = new Leerdoel();
         $newLeerdoel->naam = $a->naam;

@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../util/UtilFuncs.php';
 
 class LeerdoelenStructuur{
     public $categorie;
@@ -11,27 +11,46 @@ class LeerdoelenStructuur{
         $this->leerdoelPlanning[$leerdoel->naam] = $leerdoel;
     }
 
-    public function getAll(){
+    public function updateLeerdoel(Leerdoel $leerdoel){
+        if(isset($this->leerdoelPlanning[$leerdoel->naam])){
+            $this->leerdoelPlanning[$leerdoel->naam] = $leerdoel;
+        }
+        else{
+            foreach($this->children as $child){
+                if($child->updateLeerdoel($leerdoel)){
+                    return true;
+                };
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Summary of getNonChildLeerdoelen
+     * @return Leerdoel[]
+     */
+    public function getNonChildLeerdoelen(): array{
         return $this->leerdoelPlanning;
+    }
+
+    /**
+     * Summary of getChildren
+     * @return LeerdoelenStructuur[]
+     */
+    public function getChildren(): array{
+        return $this->children;
+    }
+
+    /**
+     * Summary of getAllLeerdoelen
+     * @return Leerdoel[]
+     */
+    public function getAllLeerdoelen(){
+        return arrayTurboFlattener($this->leerdoelPlanning, ...array_map(fn($child) => $child->getAllLeerdoelen(), $this->children));
     }
 
     public function addChildGroup(LeerdoelenStructuur $leerdoelGroup){
         $this->children[ $leerdoelGroup->categorie] = $leerdoelGroup;
-    }
-
-    public function getLeerdoelByCanvasID($canvasID): ?Leerdoel{
-        foreach($this->leerdoelPlanning as $leerdoel){
-            if($leerdoel->id_in_canvas == $canvasID){
-                return $leerdoel;
-            }
-        }
-        foreach($this->children as $childGroup){
-            $result = $childGroup->getLeerdoelByCanvasID($canvasID);
-            if($result !== null){
-                return $result;
-            }
-        }
-        return null;
     }
 
     public function getLeeruitkomstByCanvasID($canvasLeeruitkomstID): ?Leerdoel{
@@ -65,7 +84,7 @@ class LeerdoelenStructuur{
     }
 
     public function debugPopulateMissingToetsmomenten(){
-        foreach($this->leerdoelPlanning as $leerdoel){
+        foreach($this->getAllLeerdoelen() as $leerdoel){
             for($i = 1; $i <= $leerdoel->meesterschapsNiveau; $i++){
                 if(!isset($leerdoel->toetsmomenten[$i])){
                     $leerdoel->addToetsmoment($i, $i);

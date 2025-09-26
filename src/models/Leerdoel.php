@@ -17,7 +17,6 @@ class Leerdoel{
     public $meesterschapsNiveau = null;
     public $optelModel = optelModel::Null;
     public $runningAverageValue = null;
-    public $id_in_canvas = null;
     public $leeruitkomstIDInCanvas = null;
 
     public function addToetsMoment($niveau, $periode){
