@@ -7,8 +7,11 @@ function clearCache(){
     }
     $_SESSION['cache'] = [];
 }
-function cached_call($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = []) {
-    return cached_call_sessionbased($function, $args, $expirationDateInSeconds, $ignoreKeysInPos);
+function cached_call($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = [], ICacheSerialiserVisitor $cachingRules = null) {
+    if($cachingRules == null){
+        $cachingRules = new MaximumRestrictions();
+    }
+    return cached_call_sessionbased($function, $args, $expirationDateInSeconds, $ignoreKeysInPos, $cachingRules);
     
     //APCU is not available on all systems, disabled for now
     
@@ -31,8 +34,10 @@ function cached_call($function, array $args = [], int $expirationDateInSeconds =
     return $result;
 }
 
-function cached_call_sessionbased($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = []) {
-    
+function cached_call_sessionbased($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = [], ICacheSerialiserVisitor $cachingRules = null) {
+    if($cachingRules == null){
+        $cachingRules = new MaximumRestrictions();
+    }
     if(!session_id()) {
         session_start();
     }
@@ -50,7 +55,7 @@ function cached_call_sessionbased($function, array $args = [], int $expirationDa
         }
     }
     
-    $key = md5(serialize([$function, $newKeyArgs]));
+    $key = md5(SerializeHelper($function, $newKeyArgs, $cachingRules));
 
     if (isset($cache[$key])) {
         if ($cache[$key]["expires_at"] > time()) {
@@ -70,4 +75,26 @@ function cached_call_sessionbased($function, array $args = [], int $expirationDa
     ];
     // echo "No cached result available";
     return $result;
+}
+
+function SerializeHelper($key, $values, ICacheSerialiserVisitor $visitor){
+    $serialized = "";
+    if(is_array($key)){
+        $serialized .= SerializeHelperItem($key[0], $visitor) . $key[1];
+    }
+    else{
+        $serialized .= SerializeHelperItem($key, $visitor);
+    }
+
+    foreach($values as $value){
+        $serialized .= SerializeHelperItem($value, $visitor);
+    }
+    return $serialized;
+}
+
+function SerializeHelperItem($item, ICacheSerialiserVisitor $visitor){
+    if($item instanceof ICacheSerialisable){
+        return $item->serialize($visitor);
+    }
+    return serialize($item);
 }

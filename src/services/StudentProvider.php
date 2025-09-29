@@ -1,11 +1,15 @@
 <?php
 require_once __DIR__ . '/utility/SubmissionsProcessing.php';
-class StudentProvider{
+class StudentProvider extends ICacheSerialisable{
     
     private $canvasReader;
 
     public function __construct(CanvasReader $canvasReader) {
         $this->canvasReader = $canvasReader;
+    }
+
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return "StudentProvider - ". $visitor->serializeCanvasReader(reader: $this->canvasReader);
     }
 
     /**
@@ -16,7 +20,7 @@ class StudentProvider{
      */
     private function getStudentResultsByID($studentID): array{
         $results = $this->canvasReader->fetchStudentSubmissions($studentID);
-        $leerdoelPlanning = LeerdoelenStructuurProvider::getStructuur($this->canvasReader);
+        $leerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
 
         //filter needed info to structs
         $output = [];
@@ -61,7 +65,7 @@ class StudentProvider{
 
     public function getStudentMasteryByID($studentID): LeerdoelResultaat{
         $data = $this->canvasReader->fetchStudentVakbeheersing($studentID);
-        $LeerdoelPlanning = LeerdoelenStructuurProvider::getStructuur($this->canvasReader);
+        $LeerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
         
         $resultaat = new LeerdoelResultaat();
         $resultaat->beschrijving = "Totaal vakbeheersing";

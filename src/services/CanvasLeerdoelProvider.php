@@ -1,21 +1,29 @@
 <?php
 require_once __DIR__ . '/../util/UtilFuncs.php';
-require_once __DIR__ . '/../util/Caching.php';
+require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
+require_once __DIR__ . "/../util/Caching/ICacheSerialisable.php";
+require_once __DIR__ . "/../util/Caching/CourseRestricted.php";
 
-class CanvasLeerdoelProvider{
+class CanvasLeerdoelProvider extends ICacheSerialisable{
     private $canvasReader;
 
     public function __construct(CanvasReader $canvasReader){
         $this->canvasReader = $canvasReader;
     }
 
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return "CanvasLeerdoelProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
+    }
+
     public function getTotal(): LeerdoelenStructuur{
         global $sharedCacheTimeout;
         return cached_call(
-            [$this, '_getTotal'], //TODO fix doesnt work globally as canvasreader still contians api key
+            [$this, '_getTotal'],
             [],
             $sharedCacheTimeout, //cached globally
+            [],
+            new CourseRestricted()//TODO change to Cache
         );
     }
     public function _getTotal(): LeerdoelenStructuur{

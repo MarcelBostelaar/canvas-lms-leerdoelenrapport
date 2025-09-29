@@ -1,27 +1,15 @@
 <?php
 
-function curlCall($url, $apiKey, $cacheExpiresInSeconds = 0){
-    $data = cached_call(
-        '_curlCallUncached',
-        [$url, $apiKey],
-        $cacheExpiresInSeconds
-    );
-    // debugSearcher( "3000", $data, "<h1>Found id 3000 in curlCall for URL: $url</h1>");
-    
-    return $data;
-}
-
-/**
- * Share cached result with all users.
- */
-function curlCallCrossuserCached($url, $apiKey, $cacheExpiresInSeconds = 0){
+function curlCall($url, $apiKey, $cacheExpiresInSeconds = 0, ICacheSerialiserVisitor $cachingRules){
     $data = cached_call(
         '_curlCallUncached',
         [$url, $apiKey],
         $cacheExpiresInSeconds,
-        [1] //ignore the api key in the caching, allowing for global cache of the request
+        [],
+        $cachingRules
     );
-    // debugSearcher(3000, $data, "<h1>Found id 3000 in curlCall for URL: $url</h1>");
+    // debugSearcher( "3000", $data, "<h1>Found id 3000 in curlCall for URL: $url</h1>");
+    
     return $data;
 }
 

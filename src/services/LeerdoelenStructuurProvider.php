@@ -2,21 +2,26 @@
 require_once __DIR__ . '/../models/LeerdoelenStructuur.php';
 require_once __DIR__ . '/CanvasLeerdoelProvider.php';
 require_once __DIR__ . '/../util/UtilFuncs.php';
-require_once __DIR__ . '/../util/Caching.php';
+require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
 
-class LeerdoelenStructuurProvider{
-
-    public static function getStructuur(CanvasReader $canvasreader) : LeerdoelenStructuur {
-        global $sharedCacheTimeout; //cached globally
-        return cached_call([self::class, '_getStructuur'], [$canvasreader], $sharedCacheTimeout);
+class LeerdoelenStructuurProvider extends ICacheSerialisable{
+    private $canvasReader;
+    public function __construct(CanvasReader $canvasReader) {
+        $this->canvasReader = $canvasReader;
     }
-    public static function _getStructuur(CanvasReader $canvasreader) : LeerdoelenStructuur {
+
+    public function getStructuur() : LeerdoelenStructuur {
+        global $sharedCacheTimeout; //cached globally
+        return cached_call([$this, '_getStructuur'], 
+        [], 
+        $sharedCacheTimeout, 
+        [], 
+        new CourseRestricted());
+    }
+    public function _getStructuur() : LeerdoelenStructuur {
         $loaded = self::loadFromFile();
-        $canvasdata = (new CanvasLeerdoelProvider($canvasreader))->getTotal();
-        // echo "<pre>";
-        // var_dump($canvasdata);
-        // echo "</pre>";
+        $canvasdata = (new CanvasLeerdoelProvider($this->canvasReader))->getTotal();
         self::merge($canvasdata, $loaded);
         
         $canvasdata->debugPopulateMissingToetsmomenten();

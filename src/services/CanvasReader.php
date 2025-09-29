@@ -2,11 +2,14 @@
 
 require_once __DIR__ . '/../models/Student.php';
 require_once __DIR__ . '/../models/LeerdoelResultaat.php';
-require_once __DIR__ . '/../util/caching.php';
+require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
 require_once __DIR__ . '/../util/CanvasCurlCalls.php';
+require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
+require_once __DIR__ . '/../util/caching/MaximumRestrictions.php';
+require_once __DIR__ . '/../util/caching/CourseRestricted.php';
 
-class CanvasReader{
+class CanvasReader extends ICacheSerialisable{
     private $apiKey;
     private $courseURL;
     private $baseURL;
@@ -17,12 +20,26 @@ class CanvasReader{
         $this->courseURL = "$baseURL/courses/$courseID";
     }
 
+    public function getApiKey() {
+        return $this->apiKey;
+    }
+
+    public function getCourseURL(){
+        return $this->courseURL;
+    }
+
+    public function getBaseURL(){
+        return $this->baseURL;
+    }
+
     public static function getReader() : CanvasReader {
         global $sharedCacheTimeout;
         return cached_call(
             [self::class, '_getReader'],
          [],
-         $sharedCacheTimeout);
+         $sharedCacheTimeout,
+        [],
+        new MaximumRestrictions());
     }
 
     public static function _getReader() : CanvasReader {
@@ -34,45 +51,38 @@ class CanvasReader{
     }
 
     public function fetchStudentSubmissions($studentID){
+        global $studentDataCacheTimeout;
         //TODO these assessments are also paginated. Fix by making them seperate calls per submission.
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
-        $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
+        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions()); //Cache for 5 minutes
         return $data;
     }
 
-    // public function fetchSubmissionRubricAssessment($submissionID){
-    //     $url = "$this->courseURL/submissions/$submissionID?include[]=rubric";
-    //     $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
-    //     return $data;
-    // }
-
     public function fetchStudentVakbeheersing($studentID){
+        global $studentDataCacheTimeout;
         $url = "$this->courseURL/outcome_results?user_ids[]=$studentID";
-        $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
+        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions()); //Cache for 5 minutes
         return $data;
     }
 
     public function fetchStudentDetails($studentID){
+        global $sharedCacheTimeout;
         $url = "$this->courseURL/users/$studentID";
-        $data = curlCall($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions()); //Cache for 1 day
         return $data;
     }
 
-    // public function fetchAssignmentName($assignmentID){
-    //     $url = "$this->courseURL/assignments/$assignmentID";
-    //     $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
-    //     return $data["name"];
-    // }
-
     public function fetchAllOutcomeGroups(){
+        global $sharedCacheTimeout;
         $url = "$this->courseURL/outcome_groups";
-        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted());
         return $data;
     }
 
     public function fetchOutcomesOfGroup( $groupID ){
+        global $sharedCacheTimeout;
         $url = "$this->courseURL/outcome_groups/$groupID/outcomes";
-        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted()); //Cache for 1 day
         // echo "<pre>";
         // var_dump($data);
         // echo "</pre>";
@@ -82,9 +92,11 @@ class CanvasReader{
     }
 
     public function fetchOutcome($id){
+        global $sharedCacheTimeout;
         $url = "$this->baseURL/outcomes/$id";
         try{
-            $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+            $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted()); //Cache for 1 day
+            return $data;
         }
         catch(Exception $e){
             if(str_contains($e->getMessage(), "The specified resource does not exist.")){
@@ -93,19 +105,5 @@ class CanvasReader{
             }
             throw $e;
         }
-        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
-        return $data;
     }
-
-    // public function fetchOutcomeLinks(){
-    //     $url = "$this->courseURL/outcome_group_links";
-    //     $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
-    //     return $data;
-    // }
-
-    // public function fetchTest($accountID){
-    //     $url = "$this->baseURL/accounts/$accountID/outcome_groups";//?include[]=outcomes&include[]=subgroups";
-    //     $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
-    //     return $data;
-    // }
 }

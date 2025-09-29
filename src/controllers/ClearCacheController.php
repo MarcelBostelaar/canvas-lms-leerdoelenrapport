@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../util/caching.php';
+require_once __DIR__ . '/../util/Caching/Caching.php';
 
 class ClearCacheController{
     public function index(){
