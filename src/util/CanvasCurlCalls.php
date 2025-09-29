@@ -19,12 +19,15 @@ class PaginationHeaderHandler{
     public function handle($curl, $header_line){
         if (preg_match('/<([^>]*)>;\s*rel="next"/', trim($header_line), $matches)) {
             $this->nextURL = $matches[1];
+            // echo "FOUND NEXT URL: " . $this->nextURL . "<br>";
         }
+        // echo $header_line . "<br>";
         return strlen($header_line);
     }
 }
 
 function _curlCallUncached($url, $apiKey) {
+    // echo "Fetching URL: $url<br>";
     // Initialize cURL
     $ch = curl_init($url);
 
@@ -61,11 +64,27 @@ function _curlCallUncached($url, $apiKey) {
         }
         throw new Exception($errors);
     }
-
+    // var_dump($data);
     //if a next link for paginated results was found, call it recursively, append all results together.
     if($nextURLHandler->nextURL !== null){
-        $additionalData = _curlCallUncached($nextURLHandler->nextURL, $apiKey);
-        $data = array_merge($data, $additionalData);
+        $topKey = null;
+        if(!array_is_list($data)){
+            //Non-list results need special handling to merge properly
+            //Assume the top key is the one that contains the list of results
+            $topKey = array_key_first($data);
+            if(count($data) != 1 || !array_is_list($data[$topKey])){
+                throw new Exception("Unexpected data structure when handling pagination for URL $url");
+            }
+            $data = $data[$topKey];
+            $additionalData = _curlCallUncached($nextURLHandler->nextURL, $apiKey)[$topKey];
+            $data = array_merge($data, $additionalData);
+            $data = [$topKey => $data];
+        }
+        else{
+            $additionalData = _curlCallUncached($nextURLHandler->nextURL, $apiKey);
+            $data = array_merge($data, $additionalData);
+        }
     }
+    // echo "Total data: " . count($data) . "<br>";
     return $data;
 }

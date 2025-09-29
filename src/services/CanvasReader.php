@@ -54,14 +54,14 @@ class CanvasReader extends ICacheSerialisable{
         global $studentDataCacheTimeout;
         //TODO these assessments are also paginated. Fix by making them seperate calls per submission.
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
-        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions()); //Cache for 5 minutes
+        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions());
         return $data;
     }
 
     public function fetchStudentVakbeheersing($studentID){
         global $studentDataCacheTimeout;
         $url = "$this->courseURL/outcome_results?user_ids[]=$studentID";
-        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions()); //Cache for 5 minutes
+        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions());
         return $data;
     }
 

@@ -18,8 +18,8 @@ class SingleStudentViewController{
         $CanvasReader = CanvasReader::getReader();
         $StudentReader = new StudentProvider($CanvasReader);
         $Leerdoelen = (new LeerdoelenStructuurProvider($CanvasReader))->getStructuur();
-        
         $student = $StudentReader->getFullStudentByID($this->studentID);
+        
 
         renderRapport($student, $Leerdoelen);
     }

@@ -70,6 +70,7 @@ class StudentProvider extends ICacheSerialisable{
         $resultaat = new LeerdoelResultaat();
         $resultaat->beschrijving = "Totaal vakbeheersing";
 
+
         foreach($data["outcome_results"] as $outcome){
             $canvasID = $outcome["links"]["learning_outcome"];
             $leerdoel = $LeerdoelPlanning->getLeeruitkomstByCanvasID($canvasID);
