@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../util/UtilFuncs.php';
+require_once __DIR__ . '/../util/Caching.php';
+require_once __DIR__ . '/../util/Constants.php';
 
 class CanvasLeerdoelProvider{
     private $canvasReader;
@@ -9,6 +11,14 @@ class CanvasLeerdoelProvider{
     }
 
     public function getTotal(): LeerdoelenStructuur{
+        global $sharedCacheTimeout;
+        return cached_call(
+            [$this, '_getTotal'], //TODO fix doesnt work globally as canvasreader still contians api key
+            [],
+            $sharedCacheTimeout, //cached globally
+        );
+    }
+    public function _getTotal(): LeerdoelenStructuur{
         $groupMap = [];
         $outcomeGroups = $this->canvasReader->fetchAllOutcomeGroups();
 
@@ -26,7 +36,6 @@ class CanvasLeerdoelProvider{
         }
 
         foreach($groupMap as $id => $group){
-            echo "Processing group ".$group["title"]."<br>";
             $groupMap[$id]["uitkomst"] = $this->getLeeruitkomsten($id, $group["title"]);
         }
         $topLevel = null;
@@ -52,7 +61,7 @@ class CanvasLeerdoelProvider{
         foreach($leeruitkomstData as $leeruitkomst){
             $id = $leeruitkomst["id"];
             $titel = $leeruitkomst["title"];
-            echo "id leeruitkomst: $id - $titel<br>";
+            // echo "id leeruitkomst: $id - $titel<br>";
             
             // echo "<pre>";
             // var_dump($leeruitkomst);
@@ -61,8 +70,9 @@ class CanvasLeerdoelProvider{
             //check if all fields are present
             $result = isSetMany($leeruitkomst, "id", "title", "points_possible", "mastery_points", "calculation_method", "ratings");
             if($result[0] === false){
-                $title = isset($leeruitkomst['title']) ? $leeruitkomst['title'] : 'unknown';
-                // echo "Missing fields in leeruitkomst '$title': $result[1]<br>";
+                // $title = isset($leeruitkomst['title']) ? $leeruitkomst['title'] : 'unknown';
+                // echo "Missing fields in leeruitkomst '$title': $id<br>";
+                // var_dump($leeruitkomst);
                 // echo "<pre>";
                 // var_dump($leeruitkomst);
                 // echo "</pre>";

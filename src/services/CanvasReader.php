@@ -3,63 +3,48 @@
 require_once __DIR__ . '/../models/Student.php';
 require_once __DIR__ . '/../models/LeerdoelResultaat.php';
 require_once __DIR__ . '/../util/caching.php';
+require_once __DIR__ . '/../util/Constants.php';
 require_once __DIR__ . '/../util/CanvasCurlCalls.php';
 
 class CanvasReader{
     private $apiKey;
     private $courseURL;
     private $baseURL;
-    private $masterRubric;
 
-    public function __construct($apiKey, $baseURL, $courseID, $masterRubric) {
+    public function __construct($apiKey, $baseURL, $courseID) {
         $this->apiKey = $apiKey;
         $this->baseURL = $baseURL;
         $this->courseURL = "$baseURL/courses/$courseID";
-        $this->masterRubric = $masterRubric;
     }
 
     public static function getReader() : CanvasReader {
+        global $sharedCacheTimeout;
+        return cached_call(
+            [self::class, '_getReader'],
+         [],
+         $sharedCacheTimeout);
+    }
+
+    public static function _getReader() : CanvasReader {
         $env = parse_ini_file('./../../.env');
         $apiKey = $env['APIKEY'];
         $baseURL = $env['baseURL'];
         $courseID = $env['courseID'];
-        $masterRubric = $env['masterRubric'];
-        return new CanvasReader($apiKey, $baseURL, $courseID, $masterRubric);
-    }
-
-    public function fetchStrippedDownMasterRubric(){
-        $data = $this->fetchMasterRubric();
-        $data = $data['data'];
-
-        $newlist = [];
-        foreach ($data as $item) {
-            $newlist[$item["description"]] = [
-                'id' => $item['id'],
-                'learning_outcome_id' => $item['learning_outcome_id']
-            ];
-        }
-        return $newlist;
-    }
-
-    public function fetchMasterRubric(){
-        $url = "$this->courseURL/rubrics/$this->masterRubric";
-        
-        //May be cached globally, not sensitive to student
-        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //cached for 1 day
-        return $data;
+        return new CanvasReader($apiKey, $baseURL, $courseID);
     }
 
     public function fetchStudentSubmissions($studentID){
+        //TODO these assessments are also paginated. Fix by making them seperate calls per submission.
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
         $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
         return $data;
     }
 
-    public function fetchSubmissionRubricAssessment($submissionID){
-        $url = "$this->courseURL/submissions/$submissionID?include[]=rubric";
-        $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
-        return $data;
-    }
+    // public function fetchSubmissionRubricAssessment($submissionID){
+    //     $url = "$this->courseURL/submissions/$submissionID?include[]=rubric";
+    //     $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
+    //     return $data;
+    // }
 
     public function fetchStudentVakbeheersing($studentID){
         $url = "$this->courseURL/outcome_results?user_ids[]=$studentID";
@@ -73,11 +58,11 @@ class CanvasReader{
         return $data;
     }
 
-    public function fetchAssignmentName($assignmentID){
-        $url = "$this->courseURL/assignments/$assignmentID";
-        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
-        return $data["name"];
-    }
+    // public function fetchAssignmentName($assignmentID){
+    //     $url = "$this->courseURL/assignments/$assignmentID";
+    //     $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+    //     return $data["name"];
+    // }
 
     public function fetchAllOutcomeGroups(){
         $url = "$this->courseURL/outcome_groups";
@@ -112,9 +97,15 @@ class CanvasReader{
         return $data;
     }
 
-    public function fetchOutcomeLinks(){
-        $url = "$this->courseURL/outcome_group_links";
-        $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
-        return $data;
-    }
+    // public function fetchOutcomeLinks(){
+    //     $url = "$this->courseURL/outcome_group_links";
+    //     $data = curlCallCrossuserCached($url, $this->apiKey, 60*60*24); //Cache for 1 day
+    //     return $data;
+    // }
+
+    // public function fetchTest($accountID){
+    //     $url = "$this->baseURL/accounts/$accountID/outcome_groups";//?include[]=outcomes&include[]=subgroups";
+    //     $data = curlCall($url, $this->apiKey, 300); //Cache for 5 minutes
+    //     return $data;
+    // }
 }

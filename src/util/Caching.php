@@ -1,4 +1,12 @@
 <?php
+
+function clearCache(){
+    //todo implement non-session
+    if(!session_id()){
+        session_start();
+    }
+    $_SESSION['cache'] = [];
+}
 function cached_call($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = []) {
     return cached_call_sessionbased($function, $args, $expirationDateInSeconds, $ignoreKeysInPos);
     
@@ -24,12 +32,16 @@ function cached_call($function, array $args = [], int $expirationDateInSeconds =
 }
 
 function cached_call_sessionbased($function, array $args = [], int $expirationDateInSeconds = 60, $ignoreKeysInPos = []) {
-    if(!session_id()) session_start();
     
+    if(!session_id()) {
+        session_start();
+    }
+    // $_SESSION['cache'] = [];//Temp disable
     if (!isset($_SESSION['cache'])) {
         // echo "New cache total";
         $_SESSION['cache'] = [];
     }
+    $cache = $_SESSION['cache'];
 
     $newKeyArgs = [];
     for ($i = 0; $i < count($args); $i++){
@@ -40,13 +52,13 @@ function cached_call_sessionbased($function, array $args = [], int $expirationDa
     
     $key = md5(serialize([$function, $newKeyArgs]));
 
-    if (isset($_SESSION['cache'][$key])) {
-        if ($_SESSION['cache'][$key]["expires_at"] > time()) {
+    if (isset($cache[$key])) {
+        if ($cache[$key]["expires_at"] > time()) {
             // echo "Returning cached value";
-            return $_SESSION['cache'][$key]["value"];
+            return $cache[$key]["value"];
         }
         //Cache expired
-        unset($_SESSION['cache'][$key]);
+        unset($cache[$key]);
         // echo "Cache expired";
     }
 

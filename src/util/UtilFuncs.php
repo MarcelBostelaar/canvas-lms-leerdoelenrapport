@@ -21,3 +21,13 @@ function arrayTurboFlattener(...$arrays): array{
     }
     return $result;
 }
+
+function shiftArrayToRight(&$array, $fillValueGenerator = null, $positions = 1){
+    if($fillValueGenerator == null){
+        $fillValueGenerator = fn() => null;
+    }
+    for($i = 0; $i < $positions; $i++){
+        array_unshift($array, $fillValueGenerator());
+    }
+    return $array;
+}

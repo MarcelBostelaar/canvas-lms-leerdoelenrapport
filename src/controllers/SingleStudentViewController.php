@@ -16,14 +16,6 @@ class SingleStudentViewController{
 
     public function render() {
         $CanvasReader = CanvasReader::getReader();
-        // echo "<pre>HIERZO";
-        // var_dump($CanvasReader->fetchOutcomeLinks());
-        // var_dump($CanvasReader->fetchAllOutcomeGroups());
-        // var_dump($CanvasReader->fetchStudentVakbeheersing($this->studentID));
-        // var_dump($CanvasReader->fetchSubmissionRubricAssessment(4088528));
-        // var_dump($CanvasReader->fetchOutcome(3000));
-        // echo "</pre>";
-        // throw new Exception("Stop");
         $StudentReader = new StudentProvider($CanvasReader);
         $Leerdoelen = LeerdoelenStructuurProvider::getStructuur($CanvasReader);
         

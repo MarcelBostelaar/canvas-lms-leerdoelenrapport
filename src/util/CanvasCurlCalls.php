@@ -25,9 +25,24 @@ function curlCallCrossuserCached($url, $apiKey, $cacheExpiresInSeconds = 0){
     return $data;
 }
 
+class PaginationHeaderHandler{
+    public $nextURL = null;
+
+    public function handle($curl, $header_line){
+        if (preg_match('/<([^>]*)>;\s*rel="next"/', trim($header_line), $matches)) {
+            $this->nextURL = $matches[1];
+        }
+        return strlen($header_line);
+    }
+}
+
 function _curlCallUncached($url, $apiKey) {
     // Initialize cURL
     $ch = curl_init($url);
+
+    //Handling header reader to handle paginated results
+    $nextURLHandler = new PaginationHeaderHandler();
+    curl_setopt($ch, CURLOPT_HEADERFUNCTION, [&$nextURLHandler, "handle"]);
 
     // Set headers
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -44,6 +59,7 @@ function _curlCallUncached($url, $apiKey) {
     // Handle errors
     if (curl_errno($ch)) {
         echo "cURL Error: " . curl_error($ch);
+        // throw new Exception("cURL Error: " . curl_error($ch));
     } else {
         $data = json_decode($response, true);
     }
@@ -57,27 +73,11 @@ function _curlCallUncached($url, $apiKey) {
         }
         throw new Exception($errors);
     }
-    return $data;
-}
 
-function debugSearcher($value, $data, $message){
-    //search all arrays and objects recursively
-    if (is_array($data)) {
-        foreach($data as $item){
-            debugSearcher( $value, $item, $message);
-        }
-    } elseif (is_object($data)) {
-        foreach ($data as $k => $v) {
-            if ( $v == $value) {
-                echo "Found matching value:  $value\n";
-                echo $message . "\n";
-                echo "<pre>";
-                var_dump($data);
-                echo "</pre><br><br><br>";
-                return;
-            }
-            debugSearcher($value, $v, $message);
-        }
+    //if a next link for paginated results was found, call it recursively, append all results together.
+    if($nextURLHandler->nextURL !== null){
+        $additionalData = _curlCallUncached($nextURLHandler->nextURL, $apiKey);
+        $data = array_merge($data, $additionalData);
     }
-    return;
+    return $data;
 }

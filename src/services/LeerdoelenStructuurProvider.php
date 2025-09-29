@@ -1,10 +1,17 @@
 <?php
 require_once __DIR__ . '/../models/LeerdoelenStructuur.php';
 require_once __DIR__ . '/CanvasLeerdoelProvider.php';
+require_once __DIR__ . '/../util/UtilFuncs.php';
+require_once __DIR__ . '/../util/Caching.php';
+require_once __DIR__ . '/../util/Constants.php';
 
 class LeerdoelenStructuurProvider{
 
     public static function getStructuur(CanvasReader $canvasreader) : LeerdoelenStructuur {
+        global $sharedCacheTimeout; //cached globally
+        return cached_call([self::class, '_getStructuur'], [$canvasreader], $sharedCacheTimeout);
+    }
+    public static function _getStructuur(CanvasReader $canvasreader) : LeerdoelenStructuur {
         $loaded = self::loadFromFile();
         $canvasdata = (new CanvasLeerdoelProvider($canvasreader))->getTotal();
         // echo "<pre>";
@@ -105,8 +112,22 @@ class LeerdoelenStructuurProvider{
         foreach ($data as $leerdoelData) {
             $leerdoel = new Leerdoel();
             $leerdoel->naam = $leerdoelData['naam'] ?? "";
-            $leerdoel->beschrijvingen = $leerdoelData['beschrijvingen'] ?? [];
-            $leerdoel->toetsmomenten = $leerdoelData['toetsmomenten'] ?? [];
+            $beschrijvingen = $leerdoelData['beschrijvingen'];
+            $toetsmomenten = $leerdoelData['toetsmomenten'];
+            if($beschrijvingen == null){
+                $beschrijvingen = [];
+            }
+            else{
+                $beschrijvingen = shiftArrayToRight($beschrijvingen, fn() => "");
+            }
+            if($toetsmomenten == null){
+                $toetsmomenten = [];
+            }
+            else{
+                $toetsmomenten = shiftArrayToRight($toetsmomenten, fn() => []);
+            }
+            $leerdoel->beschrijvingen = $beschrijvingen;
+            $leerdoel->toetsmomenten = $toetsmomenten;
             array_push($newone, $leerdoel);
         }
 

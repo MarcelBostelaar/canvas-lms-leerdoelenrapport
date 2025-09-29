@@ -49,7 +49,7 @@ class StudentProvider{
             foreach($filteredInfo->Assessment as $assessment){
                 $leerdoel = $leerdoelPlanning->getLeeruitkomstByCanvasID($assessment->learning_outcome_id);
                 if($leerdoel == null){
-                    echo "<span style='color: red'>Onbekend leerdoel met ID " . $assessment->learning_outcome_id . "</span><br>";
+                    // echo "<span style='color: red'>Onbekend leerdoel met ID " . $assessment->learning_outcome_id . "</span><br>";
                     continue;
                 }
                 $newResultaat->add($leerdoel, $assessment->score, $filteredInfo->gradedAt);
@@ -70,7 +70,7 @@ class StudentProvider{
             $canvasID = $outcome["links"]["learning_outcome"];
             $leerdoel = $LeerdoelPlanning->getLeeruitkomstByCanvasID($canvasID);
             if($leerdoel == null){
-                echo "<span style='color: red'>Onbekend leerdoel met ID " . $canvasID . "</span><br>";
+                // echo "<span style='color: red'>Onbekend leerdoel met ID " . $canvasID . "</span><br>";
                 continue;
                 // throw new Exception("Onbekend leerdoel met canvasID " . $canvasID . " in outcome result");
             }
