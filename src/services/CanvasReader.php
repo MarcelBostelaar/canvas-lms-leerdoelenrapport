@@ -9,7 +9,7 @@ require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
 require_once __DIR__ . '/../util/caching/MaximumRestrictions.php';
 require_once __DIR__ . '/../util/caching/CourseRestricted.php';
 
-class CanvasReader implements ICacheSerialisable{
+class UncachedCanvasReader{
     private $apiKey;
     private $courseURL;
     private $baseURL;
@@ -18,10 +18,6 @@ class CanvasReader implements ICacheSerialisable{
         $this->apiKey = $apiKey;
         $this->baseURL = $baseURL;
         $this->courseURL = "$baseURL/courses/$courseID";
-    }
-
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return serialize($this);
     }
 
     public function getApiKey() {
@@ -37,15 +33,6 @@ class CanvasReader implements ICacheSerialisable{
     }
 
     public static function getReader() : CanvasReader {
-        global $sharedCacheTimeout;
-        return cached_call(
-            [self::class, '_getReader'],
-         [],
-         $sharedCacheTimeout,
-        new MaximumRestrictions());
-    }
-
-    public static function _getReader() : CanvasReader {
         $env = parse_ini_file('./../../.env');
         $apiKey = $env['APIKEY'];
         $baseURL = $env['baseURL'];
@@ -54,92 +41,53 @@ class CanvasReader implements ICacheSerialisable{
     }
 
     public function fetchStudentSubmissions($studentID){
-        global $studentDataCacheTimeout;
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
-        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions());
+        $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
     public function fetchStudentVakbeheersing($studentID){
-        global $studentDataCacheTimeout;
         $url = "$this->courseURL/outcome_results?user_ids[]=$studentID";
-        $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions());
+        $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
     public function fetchStudentDetails($studentID){
-        global $sharedCacheTimeout;
         $url = "$this->courseURL/users/$studentID";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions());
+        $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
-    // public function fetchStudentSections($studentID){
-    //     global $sharedCacheTimeout;
-    //     $url = "$this->courseURL/enrollments?user_id=$studentID";
-    //     $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions());
-    //     return $data;
-    // }
-
     public function fetchSections(){
-        global $sharedCacheTimeout;
         $url = "$this->courseURL/sections";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted());
-
-        //TODO remove this testdata
-        // $testdata = [
-        //     [
-        //         "name" => "1A - 25/26",
-        //         "id" => -1
-        //     ],[
-        //         "name" => "1B - 25/26",
-        //         "id" => -1
-        //     ],[
-        //         "name" => "1C - 25/26",
-        //         "id" => -1
-        //     ],[
-        //         "name" => "2A - 25/26",
-        //         "id" => -1
-        //     ],[
-        //         "name" => "2B - 25/26",
-        //         "id" => -1
-        //     ],[
-        //         "name" => "2C - 25/26",
-        //         "id" => -1
-        //     ]
-        // ];
-        // $data = array_merge($data, $testdata);
+        $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
     public function fetchStudentsInSection($sectionID){
-        global $sharedCacheTimeout;
         $url = "$this->baseURL/sections/$sectionID/enrollments?type[]=StudentEnrollment&per_page=100";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions());
+        $data = curlCall($url, $this->apiKey);
         $data = array_map(fn($x) => $x["user"], $data);
         return $data;
     }
 
     public function fetchAllOutcomeGroups(){
-        global $sharedCacheTimeout;
         $url = "$this->courseURL/outcome_groups";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted());
+        $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
     public function fetchOutcomesOfGroup( $groupID ){
-        global $sharedCacheTimeout;
         $url = "$this->courseURL/outcome_groups/$groupID/outcomes";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted());
+        $data = curlCall($url, $this->apiKey);
         $data = array_map(function($x){return $x["outcome"];}, $data);
         return $data;
     }
 
     public function fetchOutcome($id){
-        global $sharedCacheTimeout;
         $url = "$this->baseURL/outcomes/$id";
         try{
-            $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted()); //Cache for 1 day
+            $data = curlCall($url, $this->apiKey);
             return $data;
         }
         catch(Exception $e){
@@ -149,5 +97,71 @@ class CanvasReader implements ICacheSerialisable{
             }
             throw $e;
         }
+    }
+}
+
+class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return serialize($this);
+    }
+
+    public static function getReader() : CanvasReader{
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => UncachedCanvasReader::getReader(), self::class,
+        "getReader");
+    }
+
+    public function fetchStudentSubmissions($studentID){
+        global $studentDataCacheTimeout;
+        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        fn() => parent::fetchStudentSubmissions($studentID), $this,
+        "fetchStudentSubmissions", $studentID);
+    }
+    public function fetchStudentVakbeheersing($studentID){
+        global $studentDataCacheTimeout;
+        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        fn() => parent::fetchStudentVakbeheersing($studentID), $this,
+        "fetchStudentVakbeheersing", $studentID);
+    }
+    public function fetchStudentDetails($studentID){
+        global $studentDataCacheTimeout;
+        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        fn() => parent::fetchStudentDetails($studentID), $this,
+        "fetchStudentDetails", $studentID);
+    }
+
+    public function fetchSections(){
+        global $studentDataCacheTimeout;
+        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        fn() => parent::fetchSections(), $this,
+        "fetchSections");
+    }
+
+    public function fetchStudentsInSection($sectionID){
+        global $studentDataCacheTimeout;
+        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        fn() => parent::fetchStudentsInSection($sectionID), $this,
+        "fetchStudentsInSection", $sectionID);
+    }
+
+    public function fetchAllOutcomeGroups(){
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::fetchAllOutcomeGroups(), $this,
+        "fetchAllOutcomeGroups");
+    }
+    
+    public function fetchOutcomesOfGroup($groupID){
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::fetchOutcomesOfGroup($groupID), $this,
+        "fetchOutcomesOfGroup", $groupID);
+    }
+    public function fetchOutcome($id){
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::fetchOutcome($id), $this,
+        "fetchOutcome", $id);
     }
 }

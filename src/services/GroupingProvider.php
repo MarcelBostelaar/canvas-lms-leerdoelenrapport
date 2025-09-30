@@ -1,18 +1,13 @@
 <?php
 include_once __DIR__ . "/ConfigProvider.php";
 include_once __DIR__ . "/../util/UtilFuncs.php";
-class GroupingProvider implements ICacheSerialisable{
-    private CanvasReader $canvasReader;
+include_once __DIR__ . "/../util/caching/TeacherCourseRestricted.php";
+class UncachedGroupingProvider{
+    protected CanvasReader $canvasReader;
     public function __construct( CanvasReader $canvasReader ){
         $this->canvasReader = $canvasReader;
     }
 
-    public function serialize(ICacheSerialiserVisitor $visitor): string
-    {
-        return "GroupingProvider - " . $visitor->serializeCanvasReader(reader: $this->canvasReader);
-    }
-
-    //TODO cache
     public function getSectionGroupings(): AllSectionGroupings {
         $unlinkedGroupings = (new ConfigProvider())->getRawConfig()->sectionGroupings;
         $sectionData = $this->canvasReader->fetchSections();
@@ -31,5 +26,19 @@ class GroupingProvider implements ICacheSerialisable{
             }
         }
         return $unlinkedGroupings;
+    }
+}
+
+class GroupingProvider extends UncachedGroupingProvider implements ICacheSerialisable{
+    public function serialize(ICacheSerialiserVisitor $visitor): string
+    {
+        return "GroupingProvider - " . $visitor->serializeCanvasReader(reader: $this->canvasReader);
+    }
+
+    public function getSectionGroupings(): AllSectionGroupings{
+        global $sharedCacheTimeout;
+        return cached_call(new TeacherCourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::getSectionGroupings(), $this,
+        "getSectionGroupings");
     }
 }

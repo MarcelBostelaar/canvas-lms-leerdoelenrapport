@@ -6,24 +6,13 @@ require_once __DIR__ . '/../util/UtilFuncs.php';
 require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
 
-class LeerdoelenStructuurProvider implements ICacheSerialisable{
-    private $canvasReader;
+class UncachedLeerdoelenStructuurProvider{
+    protected $canvasReader;
     public function __construct(CanvasReader $canvasReader) {
         $this->canvasReader = $canvasReader;
     }
 
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return "LeerdoelenStructuurProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
-    }
-
     public function getStructuur() : LeerdoelenStructuur {
-        global $sharedCacheTimeout; //cached globally
-        return cached_call([$this, '_getStructuur'], 
-        [], 
-        $sharedCacheTimeout, 
-        new CourseRestricted());
-    }
-    public function _getStructuur() : LeerdoelenStructuur {
         $loaded = $this->fromConfig();
         $canvasdata = (new CanvasLeerdoelProvider($this->canvasReader))->getTotal();
         self::merge($canvasdata, $loaded);
@@ -103,7 +92,7 @@ class LeerdoelenStructuurProvider implements ICacheSerialisable{
      * @throws \Exception
      * @return Leerdoel[]
      */
-    private function fromConfig() : array {
+    protected function fromConfig() : array {
 
         $data = (new ConfigProvider())->getRawConfig()->outcomes;
         $newone = [];
@@ -131,5 +120,26 @@ class LeerdoelenStructuurProvider implements ICacheSerialisable{
         }
 
         return $newone;
+    }
+}
+
+//Caching
+class LeerdoelenStructuurProvider extends UncachedLeerdoelenStructuurProvider implements ICacheSerialisable{
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return "LeerdoelenStructuurProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
+    }
+
+    public function getStructuur(): LeerdoelenStructuur{
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::getStructuur(), $this,
+        "getStructuur");
+    }
+
+    protected function fromConfig(): array{
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::fromConfig(), $this,
+        "fromConfig");
     }
 }

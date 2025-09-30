@@ -5,27 +5,13 @@ require_once __DIR__ . '/../util/Constants.php';
 require_once __DIR__ . "/../util/Caching/ICacheSerialisable.php";
 require_once __DIR__ . "/../util/Caching/CourseRestricted.php";
 
-class CanvasLeerdoelProvider implements ICacheSerialisable{
-    private $canvasReader;
+class UncachedCanvasLeerdoelProvider{
+    protected $canvasReader;
 
     public function __construct(CanvasReader $canvasReader){
         $this->canvasReader = $canvasReader;
     }
-
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return "CanvasLeerdoelProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
-    }
-
     public function getTotal(): LeerdoelenStructuur{
-        global $sharedCacheTimeout;
-        return cached_call(
-            [$this, '_getTotal'],
-            [],
-            $sharedCacheTimeout,
-            new CourseRestricted()
-        );
-    }
-    public function _getTotal(): LeerdoelenStructuur{
         $groupMap = [];
         $outcomeGroups = $this->canvasReader->fetchAllOutcomeGroups();
 
@@ -109,5 +95,18 @@ class CanvasLeerdoelProvider implements ICacheSerialisable{
         
         }
         return $planning;
+    }
+}
+
+class CanvasLeerdoelProvider extends UncachedCanvasLeerdoelProvider implements ICacheSerialisable{
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return "CanvasLeerdoelProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
+    }
+        
+    public function getTotal(): LeerdoelenStructuur{
+        global $sharedCacheTimeout;
+        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+        fn() => parent::getTotal(), $this,
+        "getTotal");
     }
 }

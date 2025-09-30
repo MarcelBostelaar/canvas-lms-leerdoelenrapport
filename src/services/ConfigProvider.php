@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . "/utility/ConfigStructure.php";
+
+//Note: Add caching if in the future the config is retrieved from canvas
 class ConfigProvider{
     private static $filePath = "../data/config.json";
     public function getRawConfig(): Config {
@@ -35,3 +37,4 @@ class ConfigProvider{
         return new Config(new AllSectionGroupings($groupings), $outcomes);
     }
 }
+

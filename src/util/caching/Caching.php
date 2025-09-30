@@ -24,10 +24,9 @@ function _set_cache($key, $value, $expireSeconds){
     ];
 }
 
-function get_cached($function, array $args = [], ICacheSerialiserVisitor $cachingRules){
+function get_cached($key){
     cache_start();
     
-    $key = SerializeHelper($function, $args, $cachingRules);
     if (isset($_SESSION['cache'][$key])) {
         if ($_SESSION['cache'][$key]["expires_at"] > time()) {
             return $_SESSION['cache'][$key]["value"];
@@ -38,16 +37,16 @@ function get_cached($function, array $args = [], ICacheSerialiserVisitor $cachin
     return null;
 }
 
-function cached_call($function, array $args = [], int $expirationDateInSeconds, ICacheSerialiserVisitor $cachingRules) {
-    $data = get_cached($function, $args, $cachingRules);
-    $key = SerializeHelper($function, $args, $cachingRules);
-    if($data != null){
-        return $data;
+function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds,
+                        callable $callback, object|string|null $callingObject, 
+                        string $funcName, mixed ...$args){
+    cache_start();
+    $key = SerializeHelper([$callingObject, $funcName], $args, $cachingRules);
+    $data = get_cached($key);
+    if($data == null){
+        $data = $callback();
+        _set_cache($key, $data, $expireInSeconds);
     }
-    $data = $function(...$args);
-    _set_cache(
-        SerializeHelper($function, $args, $cachingRules), 
-        $data, $expirationDateInSeconds);
     return $data;
 }
 

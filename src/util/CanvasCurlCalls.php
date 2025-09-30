@@ -1,17 +1,5 @@
 <?php
 
-function curlCall($url, $apiKey, $cacheExpiresInSeconds = 0, ICacheSerialiserVisitor $cachingRules){
-    $data = cached_call(
-        '_curlCallUncached',
-        [$url, $apiKey],
-        $cacheExpiresInSeconds,
-        $cachingRules
-    );
-    // debugSearcher( "3000", $data, "<h1>Found id 3000 in curlCall for URL: $url</h1>");
-    
-    return $data;
-}
-
 class PaginationHeaderHandler{
     public $nextURL = null;
 
@@ -26,7 +14,7 @@ class PaginationHeaderHandler{
     }
 }
 
-function _curlCallUncached($url, $apiKey) {
+function curlCall($url, $apiKey) {
     // echo "Fetching URL: $url<br>";
     // Initialize cURL
     $ch = curl_init($url);
@@ -76,12 +64,12 @@ function _curlCallUncached($url, $apiKey) {
                 throw new Exception("Unexpected data structure when handling pagination for URL $url");
             }
             $data = $data[$topKey];
-            $additionalData = _curlCallUncached($nextURLHandler->nextURL, $apiKey)[$topKey];
+            $additionalData = curlCall($nextURLHandler->nextURL, $apiKey)[$topKey];
             $data = array_merge($data, $additionalData);
             $data = [$topKey => $data];
         }
         else{
-            $additionalData = _curlCallUncached($nextURLHandler->nextURL, $apiKey);
+            $additionalData = curlCall($nextURLHandler->nextURL, $apiKey);
             $data = array_merge($data, $additionalData);
         }
     }
