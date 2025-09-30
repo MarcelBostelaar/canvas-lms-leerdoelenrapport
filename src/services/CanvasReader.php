@@ -102,7 +102,7 @@ class UncachedCanvasReader{
 
 class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
     public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return serialize($this);
+        return $visitor->serializeCanvasReader($this);
     }
 
     public static function getReader() : CanvasReader{
@@ -114,33 +114,35 @@ class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
 
     public function fetchStudentSubmissions($studentID){
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::fetchStudentSubmissions($studentID), $this,
         "fetchStudentSubmissions", $studentID);
     }
     public function fetchStudentVakbeheersing($studentID){
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::fetchStudentVakbeheersing($studentID), $this,
         "fetchStudentVakbeheersing", $studentID);
     }
     public function fetchStudentDetails($studentID){
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::fetchStudentDetails($studentID), $this,
         "fetchStudentDetails", $studentID);
     }
 
     public function fetchSections(){
+        //Cached to maximum restriction, to ensure teachers only have access to students in their own sections.
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new MaximumRestrictions(), $studentDataCacheTimeout,
         fn() => parent::fetchSections(), $this,
         "fetchSections");
     }
 
     public function fetchStudentsInSection($sectionID){
+        //Cached to maximum restriction, to ensure teachers only have access to students in their own sections.
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new MaximumRestrictions(), $studentDataCacheTimeout,
         fn() => parent::fetchStudentsInSection($sectionID), $this,
         "fetchStudentsInSection", $sectionID);
     }

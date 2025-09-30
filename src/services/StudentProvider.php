@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/utility/SubmissionsProcessing.php';
 require_once __DIR__ . '/GroupingProvider.php';
+require_once __DIR__ . '/../util/caching/StudentIDRestricted.php';
 
 class UncachedStudentProvider{
     
@@ -87,34 +88,38 @@ class UncachedStudentProvider{
     function getByID($studentID) : Student{
         return (new GroupingProvider($this->canvasReader))
                         ->getSectionGroupings()
-                        ->getStudent($studentID, $this->canvasReader);
+                        ->getStudent($studentID);
     }
 }
 
 //Caching is done here
 class StudentProvider extends UncachedStudentProvider implements ICacheSerialisable{
     public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return "StudentProvider - ". $visitor->serializeCanvasReader(reader: $this->canvasReader);
+        return $visitor->serializeStudentProvider($this);
     }
 
     public function getStudentResultsByID($studentID): array{
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::getStudentResultsByID($studentID),
         $this, "getStudentResultsByID", $studentID);
     }
 
     public function getStudentMasteryByID($studentID): LeerdoelResultaat{
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::getStudentMasteryByID($studentID),
         $this, "getStudentMasteryByID", $studentID);
     }
 
     public function getByID($studentID): Student{
         global $studentDataCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::getByID($studentID),
         $this, "getByID", $studentID);
+    }
+
+    public function getCanvasReader(){
+        return $this->canvasReader;
     }
 }

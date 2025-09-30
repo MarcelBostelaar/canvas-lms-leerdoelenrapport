@@ -100,7 +100,7 @@ class UncachedCanvasLeerdoelProvider{
 
 class CanvasLeerdoelProvider extends UncachedCanvasLeerdoelProvider implements ICacheSerialisable{
     public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return "CanvasLeerdoelProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
+        return $visitor->serializeCanvasLeerdoelProvider($this);
     }
         
     public function getTotal(): LeerdoelenStructuur{
@@ -108,5 +108,9 @@ class CanvasLeerdoelProvider extends UncachedCanvasLeerdoelProvider implements I
         return cached_call(new CourseRestricted(), $sharedCacheTimeout,
         fn() => parent::getTotal(), $this,
         "getTotal");
+    }
+
+    public function getCanvasReader(){
+        return $this->canvasReader;
     }
 }

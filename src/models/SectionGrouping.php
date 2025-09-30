@@ -34,7 +34,7 @@ class Section{
      * 
      * @return Student[]
      */
-    public function getStudents(CanvasReader $canvasReader) : array{
+    public function getStudents() : array{
         return $this->students;
     }
 }
@@ -78,6 +78,10 @@ class AllSectionGroupings{
         $this->data = $data;
     }
 
+    /**
+     * Summary of getAllSections
+     * @return Section[]
+     */
     public function getAllSections(): array{
         $merged = [];
         foreach($this->data as $_ => $grouping){
@@ -90,11 +94,11 @@ class AllSectionGroupings{
         return $this->data;
     }
 
-    public function getStudent($id, CanvasReader $canvasReader): Student{
+    public function getStudent($id): Student{
         foreach($this->data as $_ => $grouping){
             foreach($grouping->sections as $section){
-                if(isset($section->getStudents(canvasReader: $canvasReader)[$id])){
-                    return $section->getStudents($canvasReader)[$id];
+                if(isset($section->getStudents()[$id])){
+                    return $section->getStudents()[$id];
                 }
             }
         }

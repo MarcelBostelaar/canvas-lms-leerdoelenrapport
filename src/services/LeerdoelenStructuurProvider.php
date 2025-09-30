@@ -126,7 +126,7 @@ class UncachedLeerdoelenStructuurProvider{
 //Caching
 class LeerdoelenStructuurProvider extends UncachedLeerdoelenStructuurProvider implements ICacheSerialisable{
     public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return "LeerdoelenStructuurProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
+        return $visitor->serializeLeerdoelenStructuurProvider($this);
     }
 
     public function getStructuur(): LeerdoelenStructuur{
@@ -141,5 +141,9 @@ class LeerdoelenStructuurProvider extends UncachedLeerdoelenStructuurProvider im
         return cached_call(new CourseRestricted(), $sharedCacheTimeout,
         fn() => parent::fromConfig(), $this,
         "fromConfig");
+    }
+
+    public function getCanvasReader(){
+        return $this->canvasReader;
     }
 }

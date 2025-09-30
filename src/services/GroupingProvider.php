@@ -1,7 +1,6 @@
 <?php
 include_once __DIR__ . "/ConfigProvider.php";
 include_once __DIR__ . "/../util/UtilFuncs.php";
-include_once __DIR__ . "/../util/caching/TeacherCourseRestricted.php";
 class UncachedGroupingProvider{
     protected CanvasReader $canvasReader;
     public function __construct( CanvasReader $canvasReader ){
@@ -32,13 +31,26 @@ class UncachedGroupingProvider{
 class GroupingProvider extends UncachedGroupingProvider implements ICacheSerialisable{
     public function serialize(ICacheSerialiserVisitor $visitor): string
     {
-        return "GroupingProvider - " . $visitor->serializeCanvasReader(reader: $this->canvasReader);
+        return $visitor->serializeGroupingProvider($this);
     }
 
     public function getSectionGroupings(): AllSectionGroupings{
         global $sharedCacheTimeout;
-        return cached_call(new TeacherCourseRestricted(), $sharedCacheTimeout,
+        //Maximally restricted to single api keys, so that each teacher only gets the sections and students they are allowed to see.
+        $data = cached_call(new MaximumRestrictions(), $sharedCacheTimeout,
         fn() => parent::getSectionGroupings(), $this,
         "getSectionGroupings");
+
+        //pre-whitelist this api key for access to data for these students, to enable sharing of data between users
+        foreach($data->getAllSections() as $section){
+            foreach($section->getStudents() as $student){
+                whitelist_apikey_for_student_id($this->canvasReader->getApiKey(), $student->id);
+            }
+        }
+        return $data;
+    }
+
+    public function getCanvasReader(){
+        return $this->canvasReader;
     }
 }

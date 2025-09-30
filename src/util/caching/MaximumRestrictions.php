@@ -18,4 +18,8 @@ class MaximumRestrictions implements ICacheSerialiserVisitor{
     public function serializeGroupingProvider(GroupingProvider $provider) : string{
         return serialize($provider);
     }
+    public function getValidity(): bool{
+        return true; //Generated key always valid
+    }
+    public function signalSuccesfullyCached(){}//do nothing.
 }
