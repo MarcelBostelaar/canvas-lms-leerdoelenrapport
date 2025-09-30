@@ -22,7 +22,6 @@ class CanvasLeerdoelProvider extends ICacheSerialisable{
             [$this, '_getTotal'],
             [],
             $sharedCacheTimeout, //cached globally
-            [],
             new CourseRestricted()//TODO change to Cache
         );
     }

@@ -5,7 +5,6 @@ function curlCall($url, $apiKey, $cacheExpiresInSeconds = 0, ICacheSerialiserVis
         '_curlCallUncached',
         [$url, $apiKey],
         $cacheExpiresInSeconds,
-        [],
         $cachingRules
     );
     // debugSearcher( "3000", $data, "<h1>Found id 3000 in curlCall for URL: $url</h1>");
@@ -17,9 +16,12 @@ class PaginationHeaderHandler{
     public $nextURL = null;
 
     public function handle($curl, $header_line){
-        if (preg_match('/<([^>]*)>;\s*rel="next"/', trim($header_line), $matches)) {
-            $this->nextURL = $matches[1];
-            // echo "FOUND NEXT URL: " . $this->nextURL . "<br>";
+        if(str_starts_with($header_line , 'link:')){
+            if (preg_match('/<([^>]*)>;\s*rel="next"/', trim($header_line), $matches)) {
+                $this->nextURL = $matches[1];
+                echo "FOUND NEXT URL: " . $this->nextURL . "<br>";
+                echo "HEADER ORIGINAL: " . $header_line . "<br>";
+            }
         }
         // echo $header_line . "<br>";
         return strlen($header_line);

@@ -38,7 +38,6 @@ class CanvasReader extends ICacheSerialisable{
             [self::class, '_getReader'],
          [],
          $sharedCacheTimeout,
-        [],
         new MaximumRestrictions());
     }
 

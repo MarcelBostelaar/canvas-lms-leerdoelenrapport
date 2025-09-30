@@ -16,7 +16,6 @@ class LeerdoelenStructuurProvider extends ICacheSerialisable{
         return cached_call([$this, '_getStructuur'], 
         [], 
         $sharedCacheTimeout, 
-        [], 
         new CourseRestricted());
     }
     public function _getStructuur() : LeerdoelenStructuur {
