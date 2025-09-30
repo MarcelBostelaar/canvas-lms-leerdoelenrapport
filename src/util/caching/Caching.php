@@ -10,6 +10,7 @@ function init_cache(){
     ];
 }
 
+//Whitelisting API keys for access to specific student IDs
 function checkTimeoutAPIKSW($apiKey): bool{
     if(isset($_SESSION['cache'][APIKSW][$apiKey])){
         if($_SESSION['cache'][APIKSW][$apiKey]["expires"] > time()){
@@ -39,7 +40,7 @@ function whitelist_apikey_for_student_id(string $apiKey, int $studentID){
  * Summary of canSeeStudentInfo
  * @param mixed $apiKey
  * @param mixed $studentID
- * @return bool | null. True is whitelisted, false if blacklisted, null is unknown.
+ * @return bool. True is whitelisted, false if unknown.
  */
 function canSeeStudentInfo($apiKey, $studentID): bool{
     cache_start();
@@ -52,6 +53,7 @@ function canSeeStudentInfo($apiKey, $studentID): bool{
     return false;
 }
 
+//general caching functions
 function clearCache(){
     //todo implement non-session
     cache_start();
@@ -92,39 +94,43 @@ function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds
                         callable $callback, object|string|null $callingObject, 
                         string $funcName, mixed ...$args){
     cache_start();
-    
-    $key = SerializeHelper([$callingObject, $funcName], $args, $cachingRules);
+
+    //caching rules help generate key and track validity
+    $key = KeyGenerator([$callingObject, $funcName], $args, $cachingRules);
     
     $data = null;
-    if($cachingRules->getValidity()){
+    if($cachingRules->getValidity()){//if rules say valid, try get from cache
         $data = get_cached($key);
     }
     if($data == null){
         $data = $callback();
         if($data != null){
             _set_cache($key, $data, $expireInSeconds);
-            $cachingRules->signalSuccesfullyCached();
+            //let the rule object know we succesfully retrieved and cached our item
+            //rule can use this to perform additional caching work if needed
+            $cachingRules->signalSuccesfullyCached(); 
         }
     }
     return $data;
 }
 
-function SerializeHelper($function, $args, ICacheSerialiserVisitor $cachingRules){
+//cache key generation
+function KeyGenerator($function, $args, ICacheSerialiserVisitor $cachingRules){
     $serialized = "";
     if(is_array($function)){
-        $serialized .= SerializeHelperItem($function[0], $cachingRules) . $function[1];
+        $serialized .= KeyGeneratorSingleItemHelper($function[0], $cachingRules) . $function[1];
     }
     else{
-        $serialized .= SerializeHelperItem($function, $cachingRules);
+        $serialized .= KeyGeneratorSingleItemHelper($function, $cachingRules);
     }
 
     foreach($args as $value){
-        $serialized .= SerializeHelperItem($value, $cachingRules);
+        $serialized .= KeyGeneratorSingleItemHelper($value, $cachingRules);
     }
     return $serialized;
 }
 
-function SerializeHelperItem($item, ICacheSerialiserVisitor $visitor){
+function KeyGeneratorSingleItemHelper($item, ICacheSerialiserVisitor $visitor){
     if($item instanceof ICacheSerialisable){
         return $item->serialize($visitor);
     }

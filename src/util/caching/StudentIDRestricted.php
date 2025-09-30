@@ -22,7 +22,7 @@ class StudentIDRestricted extends CourseRestricted{
             throw new Exception("No api key encountered during this cache request");
         }
         $val = canSeeStudentInfo($this->encounteredAPIKey, $this->id);
-        return $val == true;
+        return $val;
     }
 
     public function signalSuccesfullyCached(){
