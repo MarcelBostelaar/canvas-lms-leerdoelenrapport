@@ -90,6 +90,10 @@ class AllSectionGroupings{
         return $merged;
     }
 
+    /**
+     * Summary of getAllGroupings
+     * @return SectionGrouping[]
+     */
     public function getAllGroupings(): array{
         return $this->data;
     }

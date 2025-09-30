@@ -24,7 +24,7 @@ function renderLeerdoelCategorie(Student $student, LeerdoelenStructuur $leerdoel
             echo "<td>" . htmlspecialchars($leerdoel->naam) . "</td>";
             echo "<td class='toetsniveau_0 periode_0 rapportcell first last'></td>";
             for ($p = 1; $p <= $aantalPeriodes; $p++) {
-                $toetsniveau = $leerdoel->getToetsNiveauInPeriode($p);
+                $toetsniveau = $leerdoel->getExactToetsNiveauInPeriode($p);
                 echo "<td class='toetsniveau_$toetsniveau periode_$p rapportcell " .
                 ($leerdoel->getFirstToetsNiveauPeriode($toetsniveau) == $p ? "first " : "") .
                 ($leerdoel->getLastToetsNiveauPeriode($toetsniveau) == $p ? "last " : "") .

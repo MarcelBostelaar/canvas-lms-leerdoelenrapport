@@ -20,7 +20,15 @@ class LeerdoelResultaat{
     }
 
     public function getBehaaldNiveau(Leerdoel $leerdoel): int | null{
-        return $this->map[$leerdoel->naam] ?? null;
+        $value = $this->map[$leerdoel->naam] ?? null;
+        if($value != null){
+            global $roundToNearestOneOver; 
+            //rounding. IE setting of 2 will round to nearest 0.5
+            //setting of 4 will round to nearest 0.25
+            //setting of 1 will round to nearest whole number
+            return roundToNearestFraction($value["niveau"], $roundToNearestOneOver);
+        }
+        return null;
     }
 
     public function getAll(){

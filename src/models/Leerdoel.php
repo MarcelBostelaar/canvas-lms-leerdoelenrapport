@@ -30,13 +30,28 @@ class Leerdoel{
         $this->beschrijvingen[$niveau] = $beschrijving;
     }
 
-    public function getToetsNiveauInPeriode($periode) : int{
+    public function getExactToetsNiveauInPeriode($periode) : int{
         foreach($this->toetsmomenten as $niveau => $periodes){
             if(in_array($periode, $periodes)){
                 return $niveau;
             }
         }
         return 0;
+    }
+
+    public function getMostRecentToetsNiveauInPeriode($periode) : int{
+        $highestNiveau = 0;
+        foreach($this->toetsmomenten as $niveau => $periodes){
+            foreach($periodes as $p){
+                if($p <= $periode){
+                    $highestNiveau = $niveau;
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        return $highestNiveau;
     }
 
     public function getLastToetsNiveauPeriode($niveau){

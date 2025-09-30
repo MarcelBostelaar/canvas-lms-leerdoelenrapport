@@ -16,7 +16,6 @@ class SingleStudentViewController{
 
     public function render() {
         $CanvasReader = CanvasReader::getReader();
-        $CanvasReader = new CanvasReader($CanvasReader->getApiKey(), $CanvasReader->getBaseURL(), 70126);
         $StudentReader = new StudentProvider($CanvasReader);
         $Leerdoelen = (new LeerdoelenStructuurProvider($CanvasReader))->getStructuur();
         $student = $StudentReader->getByID($this->studentID);

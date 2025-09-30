@@ -1,0 +1,8 @@
+.progress_box{
+    display: inline-block;
+    width: fit-content;
+}
+
+a:visited, a:link, a:active{
+    color: black;
+}

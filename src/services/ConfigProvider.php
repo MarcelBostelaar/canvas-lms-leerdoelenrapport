@@ -3,7 +3,7 @@ require_once __DIR__ . "/utility/ConfigStructure.php";
 
 //Note: Add caching if in the future the config is retrieved from canvas
 class ConfigProvider{
-    private static $filePath = "../data/config.json";
+    private static $filePath = __DIR__ . "/../data/config.json";
     public function getRawConfig(): Config {
         $json = file_get_contents(self::$filePath);
         $data = json_decode($json, true);

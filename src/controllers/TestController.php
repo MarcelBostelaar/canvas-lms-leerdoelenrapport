@@ -6,7 +6,6 @@ require_once __DIR__ . '/../services/GroupingProvider.php';
 class TestController{
     public function index(){
         $canvasReader = CanvasReader::getReader();
-        $canvasReader = new CanvasReader($canvasReader->getApiKey(), $canvasReader->getBaseURL(), 70126);
         $studentID = 42991; //Cursist Toetsen
         // $canvasReader->fetchStudentSections($studentID);
         // $sections = (new GroupingProvider($canvasReader))->getSectionGroupings();

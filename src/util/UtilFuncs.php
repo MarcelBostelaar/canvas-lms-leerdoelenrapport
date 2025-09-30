@@ -32,3 +32,10 @@ function shiftArrayToRight(&$array, $fillValueGenerator = null, $positions = 1){
     return $array;
 }
 
+function roundToNearestFraction(float $value, int $n): float {
+    if ($n <= 0) {
+        throw new InvalidArgumentException('n must be a positive integer');
+    }
+    $fraction = 1 / $n;
+    return round($value * $fraction) / $fraction;
+}
