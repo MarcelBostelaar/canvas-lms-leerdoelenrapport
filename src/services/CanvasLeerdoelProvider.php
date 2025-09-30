@@ -21,8 +21,8 @@ class CanvasLeerdoelProvider extends ICacheSerialisable{
         return cached_call(
             [$this, '_getTotal'],
             [],
-            $sharedCacheTimeout, //cached globally
-            new CourseRestricted()//TODO change to Cache
+            $sharedCacheTimeout,
+            new CourseRestricted()
         );
     }
     public function _getTotal(): LeerdoelenStructuur{
@@ -60,29 +60,15 @@ class CanvasLeerdoelProvider extends ICacheSerialisable{
 
     private function getLeeruitkomsten($groupID, $groupName): LeerdoelenStructuur{
         $leeruitkomstData = $this->canvasReader->fetchOutcomesOfGroup($groupID);
-        // echo "<pre>";
-        // var_dump($leeruitkomstData);
-        // echo "</pre>";
         $planning = new LeerdoelenStructuur();
         $planning->categorie = $groupName;
         foreach($leeruitkomstData as $leeruitkomst){
             $id = $leeruitkomst["id"];
             $titel = $leeruitkomst["title"];
-            // echo "id leeruitkomst: $id - $titel<br>";
-            
-            // echo "<pre>";
-            // var_dump($leeruitkomst);
-            // echo "</pre>";
             $leeruitkomst = $this->canvasReader->fetchOutcome($id);
             //check if all fields are present
             $result = isSetMany($leeruitkomst, "id", "title", "points_possible", "mastery_points", "calculation_method", "ratings");
             if($result[0] === false){
-                // $title = isset($leeruitkomst['title']) ? $leeruitkomst['title'] : 'unknown';
-                // echo "Missing fields in leeruitkomst '$title': $id<br>";
-                // var_dump($leeruitkomst);
-                // echo "<pre>";
-                // var_dump($leeruitkomst);
-                // echo "</pre>";
                 continue;
             }
             //single outcome
@@ -103,9 +89,6 @@ class CanvasLeerdoelProvider extends ICacheSerialisable{
                 $calcMethod = optelModel::Gemiddelde;
             }
             else{
-                // echo "<pre>";
-                // var_dump($leeruitkomst);
-                // echo "</pre>";
                 throw new Exception("Unknown calc method: '$calcMethod' for leeruitkomst '$title'");
             }
             $ratings = $leeruitkomst["ratings"];
@@ -113,14 +96,9 @@ class CanvasLeerdoelProvider extends ICacheSerialisable{
             usort($ratings, function ($a, $b) {
                 return $a['points'] <=> $b['points'];
             });
-            // echo "<pre>";
-            // var_dump($leeruitkomst);
-            // echo "</pre>";
-            // throw new Exception("Stop");
             $leerdoel = new Leerdoel();
             $leerdoel->naam = $title;
-            // $leerdoel->id_in_canvas = $groupID;//klopt niet
-            $leerdoel->leeruitkomstIDInCanvas = $id;//klopt niet
+            $leerdoel->leeruitkomstIDInCanvas = $id;
             $leerdoel->optelModel = $calcMethod;
             $leerdoel->runningAverageValue = $runningAverageValue;
             $leerdoel->meesterschapsNiveau = $mastery_points;

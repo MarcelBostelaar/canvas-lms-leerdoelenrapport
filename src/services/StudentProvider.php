@@ -32,9 +32,6 @@ class StudentProvider extends ICacheSerialisable{
             $assessmentResults = [];
             foreach($result["full_rubric_assessment"]["data"] as $assesment){
                 if(!isset($assesment["points"])){
-                    // echo "<pre>Geen punten in assessment:\n";
-                    // var_dump($assesment);
-                    // echo "</pre>";
                     continue;
                 }
                 $newAssessment = new AssessmentStruct($assesment["points"], $assesment["learning_outcome_id"]);

@@ -51,7 +51,6 @@ class CanvasReader extends ICacheSerialisable{
 
     public function fetchStudentSubmissions($studentID){
         global $studentDataCacheTimeout;
-        //TODO these assessments are also paginated. Fix by making them seperate calls per submission.
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
         $data = curlCall($url, $this->apiKey, $studentDataCacheTimeout, new MaximumRestrictions());
         return $data;
@@ -81,11 +80,7 @@ class CanvasReader extends ICacheSerialisable{
     public function fetchOutcomesOfGroup( $groupID ){
         global $sharedCacheTimeout;
         $url = "$this->courseURL/outcome_groups/$groupID/outcomes";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted()); //Cache for 1 day
-        // echo "<pre>";
-        // var_dump($data);
-        // echo "</pre>";
-        // throw new Exception("Stop");
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted());
         $data = array_map(function($x){return $x["outcome"];}, $data);
         return $data;
     }
@@ -99,7 +94,7 @@ class CanvasReader extends ICacheSerialisable{
         }
         catch(Exception $e){
             if(str_contains($e->getMessage(), "The specified resource does not exist.")){
-                //Possibly deleted/archived outcome
+                //deleted/archived outcome
                 return null;
             }
             throw $e;
