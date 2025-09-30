@@ -77,17 +77,14 @@ class LeerdoelResultaat{
                         break;
 
                     case optelModel::RunningAverage: //assuming 50% running average
-                        $newNiveau = ($entryA["niveau"] + $entryB["niveau"])/2;
+                        $percentageLast = $entryA["leerdoel"]->runningAverageValue;
+                        $newNiveau = ($entryA["niveau"] * $percentageLast) + ($entryB["niveau"] * (1-$percentageLast));
                         $newResult->add($entryB["leerdoel"], $newNiveau, $entryB["datum"]);
                         break;
 
-                    case optelModel::Altijd:
-                        //Take the lowest level
-                        if($entryA["niveau"] < $entryB["niveau"]){
-                            $newResult->addInternalRep($entryA);
-                        } else {
-                            $newResult->addInternalRep($entryB);
-                        }
+                    case optelModel::Gemiddelde:
+                        $newNiveau = ($entryA["niveau"] + $entryB["niveau"])/2;
+                        $newResult->add($entryB["leerdoel"], $newNiveau, $entryB["datum"]);
                         break;
                     case optelModel::Null:
                     default:
