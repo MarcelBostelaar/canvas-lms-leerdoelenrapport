@@ -16,14 +16,29 @@ class SingleStudentViewController{
 
     public function render() {
         $CanvasReader = CanvasReader::getReader();
+        $CanvasReader = new CanvasReader($CanvasReader->getApiKey(), $CanvasReader->getBaseURL(), 70126);
         $StudentReader = new StudentProvider($CanvasReader);
         $Leerdoelen = (new LeerdoelenStructuurProvider($CanvasReader))->getStructuur();
-        $student = $StudentReader->getFullStudentByID($this->studentID);
-        
+        $student = $StudentReader->getByID($this->studentID);
+        $mastery = $student->getMasteryResults($CanvasReader);
+        $grades = $student->getIndividualGrades($CanvasReader);
+        if(count($grades) > 1){
+            $uitkomsten = array_merge([$mastery], $grades);
+        }
+        else{
+            $uitkomsten = [$mastery];
+        }
+        renderRapport($student, $Leerdoelen, $uitkomsten);
+    }
 
-        renderRapport($student, $Leerdoelen);
+    public static function CreateFromGET() : SingleStudentViewController {
+        if(!isset($_GET['studentID'])){
+            throw new Exception("No studentID provided");
+        }
+        $studentID = intval($_GET['studentID']);
+        return new SingleStudentViewController($studentID);
     }
 }
 
-$x = new SingleStudentViewController(42991); //Cursist Toetsen
+$x = SingleStudentViewController::CreateFromGET();
 $x->render();

@@ -43,6 +43,7 @@ function LeerresultatenToJS($resultaten, $addTo){
         ?>
         <?php echo $addTo . '["' . $resultaat->beschrijving;?>"] = {
             <?php
+            // var_dump($resultaat);
             foreach($resultaat->getAll() as $naam => $content){ ?>
             "<?php echo $naam;?>" : {
                 "niveau" : <?php echo $content["niveau"]?>,
@@ -54,19 +55,19 @@ function LeerresultatenToJS($resultaten, $addTo){
     }
 }
 
-function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuur, $aantalPeriodes = 12) {
+function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuur, array $uitkomsten, $aantalPeriodes = 12) {
     
     echo "<script type='text/javascript'>\n";
     // echo "<pre>";
     echo "let resultaten = {};\n";
-    LeerresultatenToJS($student->resultaten, 'resultaten');
+    LeerresultatenToJS($uitkomsten, 'resultaten');
     echo "</script>";
     // echo "</pre>";
     echo "<script src='/static/singlestudentview.js' type='text/javascript'></script>";
     echo '<link rel="stylesheet" href="/static/style.css">';
 
 
-    echo "<h2>Student: " . htmlspecialchars($student->naam) . "</h2>";
+    echo "<h2>Student: " . htmlspecialchars($student->name) . "</h2>";
     echo "<h3>Resultaten</h3>";
     echo "<form id='resultaten_form'></form>";
 

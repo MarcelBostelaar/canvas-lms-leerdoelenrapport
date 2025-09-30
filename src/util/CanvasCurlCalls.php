@@ -19,8 +19,6 @@ class PaginationHeaderHandler{
         if(str_starts_with($header_line , 'link:')){
             if (preg_match('/<([^>]*)>;\s*rel="next"/', trim($header_line), $matches)) {
                 $this->nextURL = $matches[1];
-                echo "FOUND NEXT URL: " . $this->nextURL . "<br>";
-                echo "HEADER ORIGINAL: " . $header_line . "<br>";
             }
         }
         // echo $header_line . "<br>";

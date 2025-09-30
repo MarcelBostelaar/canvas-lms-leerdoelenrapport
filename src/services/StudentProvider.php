@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/utility/SubmissionsProcessing.php';
-class StudentProvider extends ICacheSerialisable{
+require_once __DIR__ . '/GroupingProvider.php';
+
+class StudentProvider implements ICacheSerialisable{
     
     private $canvasReader;
 
@@ -18,7 +20,7 @@ class StudentProvider extends ICacheSerialisable{
      * @throws \Exception
      * @return LeerdoelResultaat[]
      */
-    private function getStudentResultsByID($studentID): array{
+    public function getStudentResultsByID($studentID): array{
         $results = $this->canvasReader->fetchStudentSubmissions($studentID);
         $leerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
 
@@ -86,11 +88,9 @@ class StudentProvider extends ICacheSerialisable{
         return $resultaat;
     }
 
-    function getFullStudentByID($studentID) : Student{
-        $student = new Student();
-        $student->naam = $this->canvasReader->fetchStudentDetails($studentID)['name'];
-        $student->resultaten = [$this->getStudentMasteryByID($studentID)];
-        $student->resultaten = array_merge($student->resultaten, $this->getStudentResultsByID($studentID));
-        return $student;
+    function getByID($studentID) : Student{
+        return (new GroupingProvider($this->canvasReader))
+                        ->getSectionGroupings()
+                        ->getStudent($studentID, $this->canvasReader);
     }
 }

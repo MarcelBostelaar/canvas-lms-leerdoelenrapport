@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../models/Leerdoel.php';
 
 function clearCache(){
     //todo implement non-session

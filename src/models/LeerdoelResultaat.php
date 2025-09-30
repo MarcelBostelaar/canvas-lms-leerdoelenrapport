@@ -16,7 +16,7 @@ class LeerdoelResultaat{
     }
 
     private function addInternalRep($item){
-        $this->map[$item["leerdoel"]->naam] = $item;
+        $this->map[$item["leerdoel"]->name] = $item;
     }
 
     public function getBehaaldNiveau(Leerdoel $leerdoel): int | null{

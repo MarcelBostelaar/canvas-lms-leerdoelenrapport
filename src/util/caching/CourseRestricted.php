@@ -15,4 +15,7 @@ class CourseRestricted implements ICacheSerialiserVisitor{
     public function serializeStudentProvider(StudentProvider $provider) : string{
         return $provider->serialize($this);
     }
+    public function serializeGroupingProvider(GroupingProvider $provider) : string{
+        return $provider->serialize($this);
+    }
 }

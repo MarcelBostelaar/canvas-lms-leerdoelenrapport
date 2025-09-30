@@ -9,7 +9,7 @@ require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
 require_once __DIR__ . '/../util/caching/MaximumRestrictions.php';
 require_once __DIR__ . '/../util/caching/CourseRestricted.php';
 
-class CanvasReader extends ICacheSerialisable{
+class CanvasReader implements ICacheSerialisable{
     private $apiKey;
     private $courseURL;
     private $baseURL;
@@ -18,6 +18,10 @@ class CanvasReader extends ICacheSerialisable{
         $this->apiKey = $apiKey;
         $this->baseURL = $baseURL;
         $this->courseURL = "$baseURL/courses/$courseID";
+    }
+
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return serialize($this);
     }
 
     public function getApiKey() {
@@ -66,7 +70,53 @@ class CanvasReader extends ICacheSerialisable{
     public function fetchStudentDetails($studentID){
         global $sharedCacheTimeout;
         $url = "$this->courseURL/users/$studentID";
-        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions()); //Cache for 1 day
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions());
+        return $data;
+    }
+
+    // public function fetchStudentSections($studentID){
+    //     global $sharedCacheTimeout;
+    //     $url = "$this->courseURL/enrollments?user_id=$studentID";
+    //     $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions());
+    //     return $data;
+    // }
+
+    public function fetchSections(){
+        global $sharedCacheTimeout;
+        $url = "$this->courseURL/sections";
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new CourseRestricted());
+
+        //TODO remove this testdata
+        // $testdata = [
+        //     [
+        //         "name" => "1A - 25/26",
+        //         "id" => -1
+        //     ],[
+        //         "name" => "1B - 25/26",
+        //         "id" => -1
+        //     ],[
+        //         "name" => "1C - 25/26",
+        //         "id" => -1
+        //     ],[
+        //         "name" => "2A - 25/26",
+        //         "id" => -1
+        //     ],[
+        //         "name" => "2B - 25/26",
+        //         "id" => -1
+        //     ],[
+        //         "name" => "2C - 25/26",
+        //         "id" => -1
+        //     ]
+        // ];
+        // $data = array_merge($data, $testdata);
+        return $data;
+    }
+
+    public function fetchStudentsInSection($sectionID){
+        global $sharedCacheTimeout;
+        $url = "$this->baseURL/sections/$sectionID/enrollments?type[]=StudentEnrollment&per_page=100";
+        $data = curlCall($url, $this->apiKey, $sharedCacheTimeout, new MaximumRestrictions());
+        $data = array_map(fn($x) => $x["user"], $data);
         return $data;
     }
 

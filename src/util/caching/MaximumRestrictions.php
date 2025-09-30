@@ -15,4 +15,7 @@ class MaximumRestrictions implements ICacheSerialiserVisitor{
     public function serializeStudentProvider(StudentProvider $provider) : string{
         return serialize($provider);
     }
+    public function serializeGroupingProvider(GroupingProvider $provider) : string{
+        return serialize($provider);
+    }
 }

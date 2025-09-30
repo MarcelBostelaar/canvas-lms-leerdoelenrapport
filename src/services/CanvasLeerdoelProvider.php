@@ -5,7 +5,7 @@ require_once __DIR__ . '/../util/Constants.php';
 require_once __DIR__ . "/../util/Caching/ICacheSerialisable.php";
 require_once __DIR__ . "/../util/Caching/CourseRestricted.php";
 
-class CanvasLeerdoelProvider extends ICacheSerialisable{
+class CanvasLeerdoelProvider implements ICacheSerialisable{
     private $canvasReader;
 
     public function __construct(CanvasReader $canvasReader){

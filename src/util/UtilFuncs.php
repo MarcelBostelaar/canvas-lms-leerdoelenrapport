@@ -31,3 +31,4 @@ function shiftArrayToRight(&$array, $fillValueGenerator = null, $positions = 1){
     }
     return $array;
 }
+

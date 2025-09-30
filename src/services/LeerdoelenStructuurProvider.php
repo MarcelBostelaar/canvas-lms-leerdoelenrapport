@@ -1,14 +1,19 @@
 <?php
 require_once __DIR__ . '/../models/LeerdoelenStructuur.php';
 require_once __DIR__ . '/CanvasLeerdoelProvider.php';
+require_once __DIR__ . '/ConfigProvider.php';
 require_once __DIR__ . '/../util/UtilFuncs.php';
 require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
 
-class LeerdoelenStructuurProvider extends ICacheSerialisable{
+class LeerdoelenStructuurProvider implements ICacheSerialisable{
     private $canvasReader;
     public function __construct(CanvasReader $canvasReader) {
         $this->canvasReader = $canvasReader;
+    }
+
+    public function serialize(ICacheSerialiserVisitor $visitor): string {
+        return "LeerdoelenStructuurProvider - " . $visitor->serializeCanvasReader($this->canvasReader);
     }
 
     public function getStructuur() : LeerdoelenStructuur {
@@ -19,7 +24,7 @@ class LeerdoelenStructuurProvider extends ICacheSerialisable{
         new CourseRestricted());
     }
     public function _getStructuur() : LeerdoelenStructuur {
-        $loaded = self::loadFromFile();
+        $loaded = $this->fromConfig();
         $canvasdata = (new CanvasLeerdoelProvider($this->canvasReader))->getTotal();
         self::merge($canvasdata, $loaded);
         
@@ -98,26 +103,16 @@ class LeerdoelenStructuurProvider extends ICacheSerialisable{
      * @throws \Exception
      * @return Leerdoel[]
      */
-    private static function loadFromFile($filename = __DIR__ . '/../data/leerdoelen.json') : array {
+    private function fromConfig() : array {
 
-        if (!file_exists($filename)) {
-            throw new Exception("File not found: " . $filename);
-        }
-
-        $json = file_get_contents($filename);
-        $data = json_decode($json, true);
-
-        if ($data === null) {
-            throw new Exception("Invalid JSON in file: " . $filename);
-        }
-
+        $data = (new ConfigProvider())->getRawConfig()->outcomes;
         $newone = [];
 
         foreach ($data as $leerdoelData) {
             $leerdoel = new Leerdoel();
-            $leerdoel->naam = $leerdoelData['naam'] ?? "";
-            $beschrijvingen = $leerdoelData['beschrijvingen'];
-            $toetsmomenten = $leerdoelData['toetsmomenten'];
+            $leerdoel->naam = $leerdoelData->naam ?? "";
+            $beschrijvingen = $leerdoelData->beschrijvingen;
+            $toetsmomenten = $leerdoelData->toetsmomenten;
             if($beschrijvingen == null){
                 $beschrijvingen = [];
             }
