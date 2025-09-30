@@ -13,7 +13,7 @@ function init_cache(){
 //Whitelisting API keys for access to specific student IDs
 function checkTimeoutAPIKSW($apiKey): bool{
     if(isset($_SESSION['cache'][APIKSW][$apiKey])){
-        if($_SESSION['cache'][APIKSW][$apiKey]["expires"] > time()){
+        if($_SESSION['cache'][APIKSW][$apiKey]["expires"] < time()){
             //expired
             unset($_SESSION['cache'][APIKSW][$apiKey]);
             return false;
