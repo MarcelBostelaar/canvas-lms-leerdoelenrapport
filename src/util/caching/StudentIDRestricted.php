@@ -3,8 +3,15 @@
 class StudentIDRestricted extends CourseRestricted{
     private $id;
     private $encounteredAPIKey = null;
-    public function __construct($studentID){
+    private $registerAccessOnSuccess;
+    /**
+     * 
+     * @param mixed $studentID
+     * @param mixed $registerAccessOnSuccess Set this to false to avoid registering access to further data by this student if the request resolves correctly. Use this when requesting (possible) low or non-protected data about a student.
+     */
+    public function __construct($studentID, $registerAccessOnSuccess=true){
         $this->id = $studentID;
+        $this->registerAccessOnSuccess = $registerAccessOnSuccess;
     }
 
     public function serializeCanvasReader(CanvasReader $reader) : string {
@@ -26,7 +33,7 @@ class StudentIDRestricted extends CourseRestricted{
     }
     public function getValidity($key): bool{
         if($this->encounteredAPIKey == null){
-            throw new Exception("No api key encountered during this cache request. Key generated: $key");
+            throw new Exception("No api key encountered during this cache request.");
         }
         $val = canSeeStudentInfo($this->encounteredAPIKey, $this->id);
         return $val;
@@ -36,6 +43,8 @@ class StudentIDRestricted extends CourseRestricted{
         if($this->encounteredAPIKey == null){
             throw new Exception("No api key encountered during this cache request");
         }
-        whitelist_apikey_for_student_id($this->encounteredAPIKey, $this->id);
+        if($this->registerAccessOnSuccess){
+            whitelist_apikey_for_student_id($this->encounteredAPIKey, $this->id);
+        }
     }
 }

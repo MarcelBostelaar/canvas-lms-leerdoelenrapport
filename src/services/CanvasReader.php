@@ -56,12 +56,6 @@ class UncachedCanvasReader{
         return $data;
     }
 
-    public function fetchStudentDetails(int $studentID){
-        $url = "$this->courseURL/users/$studentID";
-        $data = curlCall($url, $this->apiKey);
-        return $data;
-    }
-
     public function fetchSections(){
         $url = "$this->courseURL/sections";
         $data = curlCall($url, $this->apiKey);
@@ -109,13 +103,6 @@ class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
         return $visitor->serializeCanvasReader($this);
     }
 
-    // public static function getReader() : CanvasReader{
-    //     global $sharedCacheTimeout;
-    //     return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-    //     fn() => UncachedCanvasReader::getReader(), self::class,
-    //     "getReader");
-    // }
-
     public function fetchStudentSubmissions($studentID){
         global $studentDataCacheTimeout;
         return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
@@ -127,12 +114,6 @@ class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
         return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::fetchStudentVakbeheersing($studentID), $this,
         "fetchStudentVakbeheersing", $studentID);
-    }
-    public function fetchStudentDetails($studentID){
-        global $studentDataCacheTimeout;
-        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
-        fn() => parent::fetchStudentDetails($studentID), $this,
-        "fetchStudentDetails", $studentID);
     }
 
     public function fetchSections(){
