@@ -38,7 +38,7 @@ function curlCall($url, $apiKey) {
     // Handle errors
     if (curl_errno($ch)) {
         echo "cURL Error: " . curl_error($ch);
-        // throw new Exception("cURL Error: " . curl_error($ch));
+        throw new Exception("cURL Error: " . curl_error($ch));
     } else {
         $data = json_decode($response, true);
     }

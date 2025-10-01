@@ -44,7 +44,7 @@ class UncachedCanvasLeerdoelProvider{
         return $topLevel;
     }
 
-    private function getLeeruitkomsten($groupID, $groupName): LeerdoelenStructuur{
+    private function getLeeruitkomsten(int $groupID, string $groupName): LeerdoelenStructuur{
         $leeruitkomstData = $this->canvasReader->fetchOutcomesOfGroup($groupID);
         $planning = new LeerdoelenStructuur();
         $planning->categorie = $groupName;

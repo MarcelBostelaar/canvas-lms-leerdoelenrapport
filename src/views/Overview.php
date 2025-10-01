@@ -15,7 +15,7 @@ function RenderOverview(AllSectionGroupings $groupings){
             echo "<ul>";
             foreach($section->getStudents() as $student){
                 $studentsectionnametest = $student->activeSection->name;
-                echo "<li><a href='./SingleStudentViewController.php?studentID=$student->id'>" 
+                echo "<li><a href='./SingleStudentViewController.php?id=$student->id'>" 
                 . htmlspecialchars($student->name) . "
                 <div id='progress_box_$student->id'
                 class='progress_box'

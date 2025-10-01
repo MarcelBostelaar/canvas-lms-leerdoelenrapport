@@ -2,12 +2,17 @@
 require_once __DIR__ . '/utility/SubmissionsProcessing.php';
 require_once __DIR__ . '/GroupingProvider.php';
 require_once __DIR__ . '/../util/caching/StudentIDRestricted.php';
+require_once __DIR__ . '/../util/caching/Caching.php';
+require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
+require_once __DIR__ . '/CanvasReader.php';
+require_once __DIR__ . '/LeerdoelenStructuurProvider.php';
 
 class UncachedStudentProvider{
     
     protected $canvasReader;
 
     public function __construct(CanvasReader $canvasReader) {
+        // var_dump($canvasReader);
         $this->canvasReader = $canvasReader;
     }
 
@@ -17,7 +22,7 @@ class UncachedStudentProvider{
      * @throws \Exception
      * @return LeerdoelResultaat[]
      */
-    public function getStudentResultsByID($studentID): array{
+    public function getStudentResultsByID(int $studentID): array{
         $results = $this->canvasReader->fetchStudentSubmissions($studentID);
         $leerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
 
@@ -59,7 +64,7 @@ class UncachedStudentProvider{
         return $output;
     }
 
-    public function getStudentMasteryByID($studentID): LeerdoelResultaat{
+    public function getStudentMasteryByID(int $studentID): LeerdoelResultaat{
         $data = $this->canvasReader->fetchStudentVakbeheersing($studentID);
         $LeerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
         
@@ -85,7 +90,7 @@ class UncachedStudentProvider{
         return $resultaat;
     }
 
-    function getByID($studentID) : Student{
+    function getByID(int $studentID) : Student{
         return (new GroupingProvider($this->canvasReader))
                         ->getSectionGroupings()
                         ->getStudent($studentID);
@@ -120,6 +125,7 @@ class StudentProvider extends UncachedStudentProvider implements ICacheSerialisa
     }
 
     public function getCanvasReader(){
+        // var_dump($this->canvasReader);
         return $this->canvasReader;
     }
 }

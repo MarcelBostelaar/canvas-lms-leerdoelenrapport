@@ -16,6 +16,7 @@ function calculateRGBFromScore(score) {
     return `RGB(${red},${green},0)`;
 }
 
+let studentData = {};
 
 function populateProgressBox(progress_box, data){
     let text = '';
@@ -29,9 +30,10 @@ function populateProgressBox(progress_box, data){
 }
 
 function fetchStudentProgressSummary(progress_box, studentID, currentPeriod){
-    return fetch(`/controllers/api/StudentProgressSummary.php?studentID=${studentID}&currentPeriod=${currentPeriod}`)
+    return fetch(`/controllers/api/StudentProgressSummary.php?id=${studentID}&currentPeriod=${currentPeriod}`)
     .then(response => response.json())
     .then(data => {
+        studentData[studentID] = data;
         populateProgressBox(progress_box, data);
     })
     .catch(error => {
@@ -40,14 +42,37 @@ function fetchStudentProgressSummary(progress_box, studentID, currentPeriod){
     });
 }
 
+function PrefetchStudentResults(studentID) {
+    return fetch(`/controllers/api/PrefetchStudentResults.php?id=${studentID}`)
+    .then(_ => {
+        console.log(`Prefetched results for student ${studentID}`);
+        document.getElementById(`progress_box_${studentID}`).classList.add('prefetched')
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
-    let elementsToLoad = document.querySelectorAll('.progress_box');
-    elementsToLoad.forEach(element => {
+    let elementsToLoad = Array.from(document.querySelectorAll('.progress_box'));
+    let processed = elementsToLoad.map(element => {
         let studentID = element.id.replace('progress_box_', '');
         let currentPeriod = parseInt(element.getAttribute('target_period'));
-        registerCallbackInQueue(() => fetchStudentProgressSummary(element, studentID, currentPeriod));
+        return {"id": studentID, "currentPeriod": currentPeriod, "element": element};
     });
-    processQueue();
+    let apiPool = new APIpooler();
+    processed.forEach(data => {
+        apiPool.registerCallbackInQueue(
+            () => fetchStudentProgressSummary(data.element, data.id, data.currentPeriod)
+        );
+    });
+    apiPool.processQueue()
+    .then(() => {
+        let sortedBySeverityHighToLow = Object.entries(studentData).sort((a, b) => b[1].points_behind - a[1].points_behind);
+        for(let [id, entry] of sortedBySeverityHighToLow){
+            apiPool.registerCallbackInQueue(
+                () => PrefetchStudentResults(id)
+            );
+        }
+        return apiPool.processQueue();
+    });
 });
 
 

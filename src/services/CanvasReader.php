@@ -18,6 +18,10 @@ class UncachedCanvasReader{
         $this->apiKey = $apiKey;
         $this->baseURL = $baseURL;
         $this->courseURL = "$baseURL/courses/$courseID";
+
+        if($this->apiKey == NULL || $this->baseURL == NULL || $this->courseURL == NULL){
+            throw new Exception("Invalid canvas reader created!");
+        }
     }
 
     public function getApiKey() {
@@ -33,26 +37,26 @@ class UncachedCanvasReader{
     }
 
     public static function getReader() : CanvasReader {
-        $env = parse_ini_file('./../../.env');
+        $env = parse_ini_file(__DIR__ . '/../../.env');
         $apiKey = $env['APIKEY'];
         $baseURL = $env['baseURL'];
         $courseID = $env['courseID'];
         return new CanvasReader($apiKey, $baseURL, $courseID);
     }
 
-    public function fetchStudentSubmissions($studentID){
+    public function fetchStudentSubmissions(int $studentID){
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
         $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
-    public function fetchStudentVakbeheersing($studentID){
+    public function fetchStudentVakbeheersing(int $studentID){
         $url = "$this->courseURL/outcome_results?user_ids[]=$studentID";
         $data = curlCall($url, $this->apiKey);
         return $data;
     }
 
-    public function fetchStudentDetails($studentID){
+    public function fetchStudentDetails(int $studentID){
         $url = "$this->courseURL/users/$studentID";
         $data = curlCall($url, $this->apiKey);
         return $data;
@@ -105,12 +109,12 @@ class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
         return $visitor->serializeCanvasReader($this);
     }
 
-    public static function getReader() : CanvasReader{
-        global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => UncachedCanvasReader::getReader(), self::class,
-        "getReader");
-    }
+    // public static function getReader() : CanvasReader{
+    //     global $sharedCacheTimeout;
+    //     return cached_call(new CourseRestricted(), $sharedCacheTimeout,
+    //     fn() => UncachedCanvasReader::getReader(), self::class,
+    //     "getReader");
+    // }
 
     public function fetchStudentSubmissions($studentID){
         global $studentDataCacheTimeout;

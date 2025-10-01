@@ -14,12 +14,19 @@ class StudentIDRestricted extends CourseRestricted{
                 throw new Exception("Encountered two different api keys for same request.");
             }
         }
+        if($apiKey == null){
+            // var_dump($reader);
+            throw new Exception("No api key found in reader.");
+        }
         $this->encounteredAPIKey = $apiKey;
-        return parent::serializeCanvasReader($reader);
+        // echo "API key is now: ";
+        // var_dump($this->encounteredAPIKey);
+        // echo "<br>";
+        return "CanvasReaderTest - " . $reader->getCourseURL() . " - " . $reader->getBaseURL();
     }
-    public function getValidity(): bool{
+    public function getValidity($key): bool{
         if($this->encounteredAPIKey == null){
-            throw new Exception("No api key encountered during this cache request");
+            throw new Exception("No api key encountered during this cache request. Key generated: $key");
         }
         $val = canSeeStudentInfo($this->encounteredAPIKey, $this->id);
         return $val;

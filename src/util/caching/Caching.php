@@ -99,12 +99,12 @@ function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds
     $key = KeyGenerator([$callingObject, $funcName], $args, $cachingRules);
     
     $data = null;
-    if($cachingRules->getValidity()){//if rules say valid, try get from cache
+    if($cachingRules->getValidity($key)){//if rules say valid, try get from cache
         $data = get_cached($key);
     }
-    if($data == null){
+    if($data === null){
         $data = $callback();
-        if($data != null){
+        if($data !== null){
             _set_cache($key, $data, $expireInSeconds);
             //let the rule object know we succesfully retrieved and cached our item
             //rule can use this to perform additional caching work if needed
@@ -133,6 +133,15 @@ function KeyGenerator($function, $args, ICacheSerialiserVisitor $cachingRules){
 function KeyGeneratorSingleItemHelper($item, ICacheSerialiserVisitor $visitor){
     if($item instanceof ICacheSerialisable){
         return $item->serialize($visitor);
+    }
+    if(is_scalar($item)){
+        //Ensure uniformity in key generation when dealing with ints that might be strings other times.
+        //At least for a few cases.
+        if(is_bool($item)){
+            return $item ? 'true' : 'false';
+        }
+        //int float string
+        return (string)$item;
     }
     return serialize($item);
 }

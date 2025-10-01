@@ -31,10 +31,10 @@ class SingleStudentViewController{
     }
 
     public static function CreateFromGET() : SingleStudentViewController {
-        if(!isset($_GET['studentID'])){
-            throw new Exception("No studentID provided");
+        if(!isset($_GET['id'])){
+            throw new Exception("No id provided");
         }
-        $studentID = intval($_GET['studentID']);
+        $studentID = intval($_GET['id']);
         return new SingleStudentViewController($studentID);
     }
 }

@@ -17,7 +17,7 @@ class CourseRestricted implements ICacheSerialiserVisitor{
     public function serializeGroupingProvider(GroupingProvider $provider) : string{
         return "GroupingProvider - " . $this->serializeCanvasReader($provider->getCanvasReader());
     }
-    public function getValidity(): bool{
+    public function getValidity($key): bool{
         return true; //Generated key always valid
     }
     public function signalSuccesfullyCached(){}//do nothing.
