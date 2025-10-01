@@ -101,6 +101,7 @@ function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds
     $data = null;
     if($cachingRules->getValidity($key)){//if rules say valid, try get from cache
         $data = get_cached($key);
+        // echo "Cache " . (($data !== null) ? "hit" : "miss") . "for key $key<br>";
     }
     if($data === null){
         $data = $callback();
@@ -127,7 +128,7 @@ function KeyGenerator($function, $args, ICacheSerialiserVisitor $cachingRules){
     foreach($args as $value){
         $serialized .= KeyGeneratorSingleItemHelper($value, $cachingRules);
     }
-    return $serialized;
+    return md5($serialized);
 }
 
 function KeyGeneratorSingleItemHelper($item, ICacheSerialiserVisitor $visitor){

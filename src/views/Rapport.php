@@ -64,7 +64,7 @@ function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuu
     echo "</script>";
     // echo "</pre>";
     echo "<script src='/static/singlestudentview.js' type='text/javascript'></script>";
-    echo '<link rel="stylesheet" href="/static/style.css">';
+    echo '<link rel="stylesheet" href="/static/singlestudentview.css">';
 
 
     echo "<h2>Student: " . htmlspecialchars($student->name) . "</h2>";

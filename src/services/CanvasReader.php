@@ -103,52 +103,8 @@ class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
         return $visitor->serializeCanvasReader($this);
     }
 
-    public function fetchStudentSubmissions($studentID){
-        global $studentDataCacheTimeout;
-        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
-        fn() => parent::fetchStudentSubmissions($studentID), $this,
-        "fetchStudentSubmissions", $studentID);
-    }
-    public function fetchStudentVakbeheersing($studentID){
-        global $studentDataCacheTimeout;
-        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
-        fn() => parent::fetchStudentVakbeheersing($studentID), $this,
-        "fetchStudentVakbeheersing", $studentID);
-    }
-
-    public function fetchSections(){
-        //Cached to maximum restriction, to ensure teachers only have access to students in their own sections.
-        global $studentDataCacheTimeout;
-        return cached_call(new MaximumRestrictions(), $studentDataCacheTimeout,
-        fn() => parent::fetchSections(), $this,
-        "fetchSections");
-    }
-
-    public function fetchStudentsInSection($sectionID){
-        //Cached to maximum restriction, to ensure teachers only have access to students in their own sections.
-        global $studentDataCacheTimeout;
-        return cached_call(new MaximumRestrictions(), $studentDataCacheTimeout,
-        fn() => parent::fetchStudentsInSection($sectionID), $this,
-        "fetchStudentsInSection", $sectionID);
-    }
-
-    public function fetchAllOutcomeGroups(){
-        global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => parent::fetchAllOutcomeGroups(), $this,
-        "fetchAllOutcomeGroups");
-    }
-    
-    public function fetchOutcomesOfGroup($groupID){
-        global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => parent::fetchOutcomesOfGroup($groupID), $this,
-        "fetchOutcomesOfGroup", $groupID);
-    }
-    public function fetchOutcome($id){
-        global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => parent::fetchOutcome($id), $this,
-        "fetchOutcome", $id);
-    }
+    /**
+     * Currently no cached functions needed, as all other providers are cached. 
+     * This saves unnecessary cached raw request results.
+     */
 }

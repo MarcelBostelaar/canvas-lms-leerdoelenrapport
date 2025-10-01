@@ -14,8 +14,7 @@ class PrefetchStudentResults extends APIController {
         $y = $student->getIndividualGrades($canvasReader);
 
         return [
-            "message" => "Data prefetched",
-            // "values" => [serialize($x), serialize($y)]
+            "message" => "Data prefetched"
         ];
     }
 }
