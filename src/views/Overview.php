@@ -4,6 +4,7 @@ function RenderOverview(AllSectionGroupings $groupings){
     echo "<script src='/static/apitools.js'></script>";
     echo "<script src='/static/overview.js'></script>";
     echo "<link rel='stylesheet' href='/static/overview.css'>";
+    echo '<button onclick="refresh()">Refresh</button>';
     echo "<h1>Overview of students</h1>";
     foreach($groupings->getAllGroupings() as $groupName => $grouping){
         $currentPeriod = $grouping->getPeriodOnDate(new DateTime())->period;

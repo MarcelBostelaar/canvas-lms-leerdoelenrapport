@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../../models/Leerdoel.php';
 
 const APIKSW = "api_keys_studentID_whitelist";
-
 function init_cache(){
     $_SESSION['cache'] = [
         "values" => [],
@@ -53,6 +52,49 @@ function canSeeStudentInfo($apiKey, $studentID): bool{
     return false;
 }
 
+function clearCacheForMetadata(callable $predicate){
+    cache_start();
+    foreach($_SESSION['cache']['values'] as $key => $entry){
+        if($predicate($entry['metadata'])){
+            unset($_SESSION['cache']['values'][$key]);
+        }
+    }
+}
+
+function clearCacheForStudentID($studentID){
+    clearCacheForMetadata(function($meta) use ($studentID){
+        if(is_array($meta) && isset($meta['studentID']) && $meta['studentID'] === $studentID)
+            return true;
+        return false;
+    });
+}
+
+function getLastCacheDateForStudentID($studentID): ?DateTime{
+    cache_start();
+    $latest = new DateTime("1970-01-01");
+    foreach($_SESSION['cache']['values'] as $entry){
+        if(is_array($entry['metadata']) && isset($entry['metadata']['studentID']) && $entry['metadata']['studentID'] === $studentID){
+            if($latest === null || $entry['metadata']['date'] > $latest){
+                $latest = $entry['metadata']['date'];
+            }
+        }
+    }
+    return $latest;
+}
+
+function getLastCacheDateForAnyStudents(){
+    cache_start();
+    $latest = new DateTime("1970-01-01");
+    foreach($_SESSION['cache']['values'] as $entry){
+        if(is_array($entry['metadata']) && isset($entry['metadata']['studentID'])){
+            if($latest === null || $entry['metadata']['date'] > $latest){
+                $latest = $entry['metadata']['date'];
+            }
+        }
+    }
+    return $latest;
+}
+
 //general caching functions
 function clearCache(){
     //todo implement non-session
@@ -69,11 +111,12 @@ function cache_start(){
     }
 }
 
-function _set_cache($key, $value, $expireSeconds){
+function _set_cache($key, $value, $expireSeconds, $metadata){
     cache_start();
     $_SESSION['cache']['values'][$key] = [
         'value'=> $value,
-        'expires_at'=> time() + $expireSeconds
+        'expires_at'=> time() + $expireSeconds,
+        'metadata' => ($metadata ?? [])
     ];
 }
 
@@ -106,7 +149,8 @@ function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds
     if($data === null){
         $data = $callback();
         if($data !== null){
-            _set_cache($key, $data, $expireInSeconds);
+            $metadata = $cachingRules->getMetaData();
+            _set_cache($key, $data, $expireInSeconds, $metadata);
             //let the rule object know we succesfully retrieved and cached our item
             //rule can use this to perform additional caching work if needed
             $cachingRules->signalSuccesfullyCached(); 

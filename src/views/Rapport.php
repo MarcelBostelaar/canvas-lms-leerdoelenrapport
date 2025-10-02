@@ -68,6 +68,7 @@ function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuu
 
 
     echo "<h2>Student: " . htmlspecialchars($student->name) . "</h2>";
+    echo '<button onclick="refresh()">Refresh</button>';
     echo "<h3>Resultaten</h3>";
     echo "<form id='resultaten_form'></form>";
 

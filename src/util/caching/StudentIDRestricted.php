@@ -47,4 +47,11 @@ class StudentIDRestricted extends CourseRestricted{
             whitelist_apikey_for_student_id($this->encounteredAPIKey, $this->id);
         }
     }
+
+    public function getMetaData(): mixed{
+        return [
+            'studentID'=>$this->id,
+            'date' => new DateTime()
+        ];
+    }
 }

@@ -22,4 +22,5 @@ class MaximumRestrictions implements ICacheSerialiserVisitor{
         return true; //Generated key always valid
     }
     public function signalSuccesfullyCached(){}//do nothing.
+    public function getMetaData(): mixed{return [];}//No metadata
 }

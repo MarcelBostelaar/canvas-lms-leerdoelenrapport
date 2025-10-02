@@ -16,6 +16,7 @@ interface ICacheSerialiserVisitor{
      * @return void
      */
     public function signalSuccesfullyCached();
+    public function getMetaData(): mixed;
 
 }
 interface ICacheSerialisable{

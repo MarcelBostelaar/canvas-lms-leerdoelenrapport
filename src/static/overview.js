@@ -50,6 +50,19 @@ function PrefetchStudentResults(studentID) {
     });
 }
 
+function refresh(){
+    $promises = [];
+    for(let [id, data] of Object.entries(studentData)){
+        $promises.push(
+            fetch(`/controllers/ClearCacheController.php?studentID=${id}`)
+        );
+    }
+    Promise.all($promises).then(_ => {
+        console.log("Cache cleared, refreshing page");
+        window.location.reload();
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     let elementsToLoad = Array.from(document.querySelectorAll('.progress_box'));
     let processed = elementsToLoad.map(element => {

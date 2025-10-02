@@ -96,6 +96,19 @@ function addMHEvents(item, colorClass){
     item.onmouseleave = () => onMarkerUnhover();
 }
 
+function refresh(){
+    
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    // let id = getQueryVariable("id");
+    fetch(`/controllers/ClearCacheController.php?studentID=${id}`)
+    .then(_ => {
+        console.log("Cache cleared, refreshing page");
+        window.location.reload();
+    });
+}
 
 //Startup
 document.addEventListener("DOMContentLoaded", ()=> {
