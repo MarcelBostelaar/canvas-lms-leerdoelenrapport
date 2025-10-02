@@ -36,5 +36,13 @@ class ConfigProvider{
 
         return new Config(new AllSectionGroupings($groupings), $outcomes);
     }
+
+    public static function getReader(): CanvasReader{
+        $env = parse_ini_file(__DIR__ . '/../../.env');
+        $apiKey = $env['APIKEY'];
+        $baseURL = $env['baseURL'];
+        $courseID = $env['courseID'];
+        return new CanvasReader($apiKey, $baseURL, $courseID);
+    }
 }
 

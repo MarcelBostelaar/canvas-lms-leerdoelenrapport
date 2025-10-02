@@ -36,14 +36,6 @@ class UncachedCanvasReader{
         return $this->baseURL;
     }
 
-    public static function getReader() : CanvasReader {
-        $env = parse_ini_file(__DIR__ . '/../../.env');
-        $apiKey = $env['APIKEY'];
-        $baseURL = $env['baseURL'];
-        $courseID = $env['courseID'];
-        return new CanvasReader($apiKey, $baseURL, $courseID);
-    }
-
     public function fetchStudentSubmissions(int $studentID){
         $url = "$this->courseURL/students/submissions?student_ids[]=$studentID&include[]=full_rubric_assessment&include[]=assignment";
         $data = curlCall($url, $this->apiKey);

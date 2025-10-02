@@ -1,9 +1,15 @@
 <?php
+require_once __DIR__ . '/../../services/CanvasReader.php';
+require_once __DIR__ . '/../../services/ConfigProvider.php';
 function erasethis($buffer)
 {
     return "";
 }
 abstract class APIController {
+    protected CanvasReader $canvasReader;
+    public function __construct(CanvasReader $canvasReader){
+        $this->canvasReader = $canvasReader;
+    }
     protected $debug_keep_output = false;
     public function index(){
         try{

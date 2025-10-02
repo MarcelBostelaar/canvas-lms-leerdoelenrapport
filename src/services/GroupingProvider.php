@@ -1,6 +1,8 @@
 <?php
 include_once __DIR__ . "/ConfigProvider.php";
 include_once __DIR__ . "/../util/UtilFuncs.php";
+require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
+require_once __DIR__ . '/../util/caching/CourseRestricted.php';
 class UncachedGroupingProvider{
     protected CanvasReader $canvasReader;
     public function __construct( CanvasReader $canvasReader ){

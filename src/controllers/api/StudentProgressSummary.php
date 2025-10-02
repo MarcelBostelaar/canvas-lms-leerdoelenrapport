@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../services/CanvasReader.php';
 require_once __DIR__ . '/../../services/StudentProvider.php';
 require_once __DIR__ . '/../../services/LeerdoelenStructuurProvider.php';
 require_once __DIR__ . '/../../models/Leerdoel.php';
@@ -8,7 +7,7 @@ require_once __DIR__ . '/APIController.php';
 
 class StudentProgressSummary extends APIController {
     public function handle(){
-        $canvasReader = CanvasReader::getReader();
+        $canvasReader = $this->canvasReader;
         $studentID = (int)$_GET['id'];
         $targetPeriod = (int)$_GET['currentPeriod'];
 
@@ -53,5 +52,5 @@ class StudentProgressSummary extends APIController {
     }
 }
 
-$x = new StudentProgressSummary();
+$x = new StudentProgressSummary(ConfigProvider::getReader());
 $x->index();

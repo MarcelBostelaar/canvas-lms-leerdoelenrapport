@@ -1,11 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../../services/CanvasReader.php';
 require_once __DIR__ . '/../../services/StudentProvider.php';
 require_once __DIR__ . '/APIController.php';
 class PrefetchStudentResults extends APIController {
     public function handle(){
-        $canvasReader = CanvasReader::getReader();
+        $canvasReader = $this->canvasReader;
         $studentID = (int)$_GET['id'];
         
 
@@ -19,5 +18,5 @@ class PrefetchStudentResults extends APIController {
     }
 }
 
-$x = new PrefetchStudentResults();
+$x = new PrefetchStudentResults(ConfigProvider::getReader());
 $x->index();

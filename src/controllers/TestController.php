@@ -2,10 +2,11 @@
 
 require_once __DIR__ . '/../services/CanvasReader.php';
 require_once __DIR__ . '/../services/GroupingProvider.php';
+require_once __DIR__ . '/../services/ConfigProvider.php';
 
 class TestController{
-    public function index(){
-        $canvasReader = CanvasReader::getReader();
+    public function index(CanvasReader $canvasReader){
+        // $canvasReader = ConfigProvider::getReader();
         $studentID = 42991; //Cursist Toetsen
         // $canvasReader->fetchStudentSections($studentID);
         // $sections = (new GroupingProvider($canvasReader))->getSectionGroupings();
@@ -23,4 +24,4 @@ class TestController{
 }
 
 $x = new TestController();
-$x->index();
+$x->index(ConfigProvider::getReader());
