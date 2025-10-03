@@ -27,7 +27,7 @@ class SingleStudentViewController{
         $student = $StudentReader->getByID($studentID);
         $mastery = $student->getMasteryResults($this->canvasReader);
         $grades = $student->getIndividualGrades($this->canvasReader);
-        if(count($grades) > 1){
+        if(count($grades) > 0){
             $uitkomsten = array_merge([$mastery], $grades);
         }
         else{
