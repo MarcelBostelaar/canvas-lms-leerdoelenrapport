@@ -7,14 +7,11 @@ require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
 
 class UncachedLeerdoelenStructuurProvider{
-    protected $canvasReader;
-    public function __construct(CanvasReader $canvasReader) {
-        $this->canvasReader = $canvasReader;
-    }
 
     public function getStructuur() : LeerdoelenStructuur {
+        global $providers;
         $loaded = $this->fromConfig();
-        $canvasdata = (new CanvasLeerdoelProvider($this->canvasReader))->getTotal();
+        $canvasdata = $providers->canvasLeerdoelProvider->getTotal();
         self::merge($canvasdata, $loaded);
         
         $canvasdata->debugPopulateMissingToetsmomenten();
@@ -93,8 +90,8 @@ class UncachedLeerdoelenStructuurProvider{
      * @return Leerdoel[]
      */
     protected function fromConfig() : array {
-
-        $data = (new ConfigProvider())->getRawConfig()->outcomes;
+        global $providers;
+        $data = $providers->configProvider->getRawConfig()->outcomes;
         $newone = [];
 
         foreach ($data as $leerdoelData) {
@@ -124,26 +121,17 @@ class UncachedLeerdoelenStructuurProvider{
 }
 
 //Caching
-class LeerdoelenStructuurProvider extends UncachedLeerdoelenStructuurProvider implements ICacheSerialisable{
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return $visitor->serializeLeerdoelenStructuurProvider($this);
-    }
+class LeerdoelenStructuurProvider extends UncachedLeerdoelenStructuurProvider{
 
     public function getStructuur(): LeerdoelenStructuur{
         global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => parent::getStructuur(), $this,
-        "getStructuur");
+        return cached_call(new CourseAPIKeyRestricted(), $sharedCacheTimeout,
+        fn() => parent::getStructuur(), "getStructuur");
     }
 
     protected function fromConfig(): array{
         global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => parent::fromConfig(), $this,
-        "fromConfig");
-    }
-
-    public function getCanvasReader(){
-        return $this->canvasReader;
+        return cached_call(new CourseAPIKeyRestricted(), $sharedCacheTimeout,
+        fn() => parent::fromConfig(), "fromConfig");
     }
 }

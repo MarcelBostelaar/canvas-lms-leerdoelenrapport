@@ -12,8 +12,9 @@ class Student{
         $this->activeSection = $activeSection;
     }
 
-    public function getMasteryResults(CanvasReader $canvasReader): LeerdoelResultaat{
-        return (new StudentProvider($canvasReader))->getStudentMasteryByID($this->id);
+    public function getMasteryResults(): LeerdoelResultaat{
+        global $providers;
+        return $providers->studentProvider->getStudentMasteryByID($this->id);
     }
 
     /**
@@ -21,7 +22,8 @@ class Student{
      * @param CanvasReader $canvasReader
      * @return LeerdoelResultaat[]
      */
-    public function getIndividualGrades(CanvasReader $canvasReader): array{
-        return (new StudentProvider($canvasReader))->getStudentResultsByID($this->id);
+    public function getIndividualGrades(): array{
+        global $providers;
+        return $providers->studentProvider->getStudentResultsByID($this->id);
     }
 }

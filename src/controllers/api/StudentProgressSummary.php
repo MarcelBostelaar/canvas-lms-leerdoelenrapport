@@ -7,13 +7,13 @@ require_once __DIR__ . '/APIController.php';
 
 class StudentProgressSummary extends APIController {
     public function handle(){
-        $canvasReader = $this->canvasReader;
+        global $providers;
         $studentID = (int)$_GET['id'];
         $targetPeriod = (int)$_GET['currentPeriod'];
 
-        $student = (new StudentProvider($canvasReader))->getByID($studentID);
-        $mastery = $student->getMasteryResults($canvasReader);
-        $planning = (new LeerdoelenStructuurProvider($canvasReader))->getStructuur();
+        $student = $providers->studentProvider->getByID($studentID);
+        $mastery = $student->getMasteryResults();
+        $planning = $providers->leerdoelenStructuurProvider->getStructuur();
         $results = array_map(
             fn(Leerdoel $leerdoel) => 
                     [($mastery->getBehaaldNiveau($leerdoel) ?? 0), $leerdoel->getMostRecentToetsNiveauInPeriode($targetPeriod)]
@@ -52,5 +52,5 @@ class StudentProgressSummary extends APIController {
     }
 }
 
-$x = new StudentProgressSummary(ConfigProvider::getReader());
+$x = new StudentProgressSummary();
 $x->index();

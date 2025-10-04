@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../util/Caching/Caching.php';
+require_once __DIR__ . '/BaseController.php';
 
-class ClearCacheController{
+class ClearCacheController extends BaseController{
     public function index(){
         if(isset($_GET['studentID'])){
             $this->clearForStudentID(intval($_GET['studentID']));

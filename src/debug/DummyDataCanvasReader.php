@@ -15,7 +15,8 @@ class DummyDataCanvasReader extends CanvasReader {
     }
 
     public function fetchStudentSubmissions(int $studentID){
-        $structure = (new LeerdoelenStructuurProvider($this))->getStructuur();
+        global $providers;
+        $structure = $providers->leerdoelenStructuurProvider->getStructuur();
 
         return array_map(fn($i) =>
         [

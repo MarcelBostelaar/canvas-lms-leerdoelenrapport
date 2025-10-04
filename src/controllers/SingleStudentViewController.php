@@ -7,26 +7,22 @@ require_once __DIR__ . '/../services/LeerdoelenStructuurProvider.php';
 require_once __DIR__ . '/../services/StudentProvider.php';
 require_once __DIR__ . '/../services/ConfigProvider.php';
 require_once __DIR__ . '/../views/Rapport.php';
+require_once __DIR__ . '/BaseController.php';
 
-class SingleStudentViewController{
-    private int $studentID;
-    private CanvasReader $canvasReader;
-
-    public function __construct(CanvasReader $canvasReader) {
-        $this->canvasReader = $canvasReader;
-    }
+class SingleStudentViewController extends BaseController{
 
     public function render() {
+        global $providers;
         
         if(!isset($_GET['id'])){
             throw new Exception("No id provided");
         }
         $studentID = intval($_GET['id']);
-        $StudentReader = new StudentProvider($this->canvasReader);
-        $Leerdoelen = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
+        $StudentReader = $providers->studentProvider;
+        $Leerdoelen = $providers->leerdoelenStructuurProvider->getStructuur();
         $student = $StudentReader->getByID($studentID);
-        $mastery = $student->getMasteryResults($this->canvasReader);
-        $grades = $student->getIndividualGrades($this->canvasReader);
+        $mastery = $student->getMasteryResults();
+        $grades = $student->getIndividualGrades();
         if(count($grades) > 0){
             $uitkomsten = array_merge([$mastery], $grades);
         }
@@ -37,5 +33,5 @@ class SingleStudentViewController{
     }
 }
 
-$x = new SingleStudentViewController(ConfigProvider::getReader());
+$x = new SingleStudentViewController();
 $x->render();

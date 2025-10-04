@@ -10,11 +10,11 @@ function init_cache(){
 }
 
 //Whitelisting API keys for access to specific student IDs
-function checkTimeoutAPIKSW($apiKey): bool{
-    if(isset($_SESSION['cache'][APIKSW][$apiKey])){
-        if($_SESSION['cache'][APIKSW][$apiKey]["expires"] < time()){
+function checkTimeoutAPIKSW($key): bool{
+    if(isset($_SESSION['cache'][APIKSW][$key])){
+        if($_SESSION['cache'][APIKSW][$key]["expires"] < time()){
             //expired
-            unset($_SESSION['cache'][APIKSW][$apiKey]);
+            unset($_SESSION['cache'][APIKSW][$key]);
             return false;
         }
         return true;
@@ -22,17 +22,18 @@ function checkTimeoutAPIKSW($apiKey): bool{
     return false;
 }
 
-function whitelist_apikey_for_student_id(string $apiKey, int $studentID){
-    global $studentDataCacheTimeout;
+function whitelist_current_request_for_student_id_in_course(int $studentID){
+    global $studentDataCacheTimeout, $providers;
     cache_start();
-    checkTimeoutAPIKSW($apiKey);
-    if(!isset($_SESSION['cache'][APIKSW][$apiKey])){
-        $_SESSION['cache'][APIKSW][$apiKey] = [
+    $key = $providers->canvasReader->getApiKey() . $providers->canvasReader->getCourseURL();
+    checkTimeoutAPIKSW($key);
+    if(!isset($_SESSION['cache'][APIKSW][$key])){
+        $_SESSION['cache'][APIKSW][$key] = [
             "expires" => time() + $studentDataCacheTimeout,
             "ids" => []
         ];
     }
-    $_SESSION['cache'][APIKSW][$apiKey]["ids"][$studentID] = true;
+    $_SESSION['cache'][APIKSW][$key]["ids"][$studentID] = true;
 }
 
 /**
@@ -41,12 +42,14 @@ function whitelist_apikey_for_student_id(string $apiKey, int $studentID){
  * @param mixed $studentID
  * @return bool. True is whitelisted, false if unknown.
  */
-function canSeeStudentInfo($apiKey, $studentID): bool{
+function canSeeStudentInfo($studentID): bool{
+    global $providers;
     cache_start();
-    checkTimeoutAPIKSW($apiKey);
-    if(isset($_SESSION['cache'][APIKSW][$apiKey])){
-        if(isset($_SESSION['cache'][APIKSW][$apiKey]["ids"][$studentID])){
-            return $_SESSION['cache'][APIKSW][$apiKey]["ids"][$studentID];
+    $key = $providers->canvasReader->getApiKey() . $providers->canvasReader->getCourseURL();
+    checkTimeoutAPIKSW($key);
+    if(isset($_SESSION['cache'][APIKSW][$key])){
+        if(isset($_SESSION['cache'][APIKSW][$key]["ids"][$studentID])){
+            return $_SESSION['cache'][APIKSW][$key]["ids"][$studentID];
         }
     }
     return false;
@@ -133,16 +136,15 @@ function get_cached($key){
     return null;
 }
 
-function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds,
-                        callable $callback, object|string|null $callingObject, 
-                        string $funcName, mixed ...$args){
+function cached_call(CacheRules $cachingRules, int $expireInSeconds,
+                        callable $callback, mixed ...$cacheKeyItems){
     cache_start();
 
     //caching rules help generate key and track validity
-    $key = KeyGenerator([$callingObject, $funcName], $args, $cachingRules);
+    $key = md5($cachingRules->getKey(...$cacheKeyItems));
     
     $data = null;
-    if($cachingRules->getValidity($key)){//if rules say valid, try get from cache
+    if($cachingRules->getValidity()){//if rules say valid, try get from cache
         $data = get_cached($key);
         // echo "Cache " . (($data !== null) ? "hit" : "miss") . "for key $key<br>";
     }
@@ -157,36 +159,4 @@ function cached_call(ICacheSerialiserVisitor $cachingRules, int $expireInSeconds
         }
     }
     return $data;
-}
-
-//cache key generation
-function KeyGenerator($function, $args, ICacheSerialiserVisitor $cachingRules){
-    $serialized = "";
-    if(is_array($function)){
-        $serialized .= KeyGeneratorSingleItemHelper($function[0], $cachingRules) . $function[1];
-    }
-    else{
-        $serialized .= KeyGeneratorSingleItemHelper($function, $cachingRules);
-    }
-
-    foreach($args as $value){
-        $serialized .= KeyGeneratorSingleItemHelper($value, $cachingRules);
-    }
-    return md5($serialized);
-}
-
-function KeyGeneratorSingleItemHelper($item, ICacheSerialiserVisitor $visitor){
-    if($item instanceof ICacheSerialisable){
-        return $item->serialize($visitor);
-    }
-    if(is_scalar($item)){
-        //Ensure uniformity in key generation when dealing with ints that might be strings other times.
-        //At least for a few cases.
-        if(is_bool($item)){
-            return $item ? 'true' : 'false';
-        }
-        //int float string
-        return (string)$item;
-    }
-    return serialize($item);
 }

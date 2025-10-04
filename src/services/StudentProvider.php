@@ -1,20 +1,13 @@
 <?php
 require_once __DIR__ . '/utility/SubmissionsProcessing.php';
 require_once __DIR__ . '/GroupingProvider.php';
-require_once __DIR__ . '/../util/caching/StudentIDRestricted.php';
+require_once __DIR__ . '/../util/caching/StudentIDRightsAPIKeyRestricted.php';
 require_once __DIR__ . '/../util/caching/Caching.php';
-require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
+require_once __DIR__ . '/../util/caching/CacheRules.php';
 require_once __DIR__ . '/CanvasReader.php';
 require_once __DIR__ . '/LeerdoelenStructuurProvider.php';
 
 class UncachedStudentProvider{
-    
-    protected $canvasReader;
-
-    public function __construct(CanvasReader $canvasReader) {
-        // var_dump($canvasReader);
-        $this->canvasReader = $canvasReader;
-    }
 
     /**
      * Returns the results per assignment for a given student.
@@ -23,8 +16,9 @@ class UncachedStudentProvider{
      * @return LeerdoelResultaat[]
      */
     public function getStudentResultsByID(int $studentID): array{
-        $results = $this->canvasReader->fetchStudentSubmissions($studentID);
-        $leerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
+        global $providers;
+        $results = $providers->canvasReader->fetchStudentSubmissions($studentID);
+        $leerdoelPlanning = $providers->leerdoelenStructuurProvider->getStructuur();
 
         //filter needed info to structs
         $output = [];
@@ -65,8 +59,9 @@ class UncachedStudentProvider{
     }
 
     public function getStudentMasteryByID(int $studentID): LeerdoelResultaat{
-        $data = $this->canvasReader->fetchStudentVakbeheersing($studentID);
-        $LeerdoelPlanning = (new LeerdoelenStructuurProvider($this->canvasReader))->getStructuur();
+        global $providers;
+        $data = $providers->canvasReader->fetchStudentVakbeheersing($studentID);
+        $LeerdoelPlanning = $providers->leerdoelenStructuurProvider->getStructuur();
         
         $resultaat = new LeerdoelResultaat();
         $resultaat->beschrijving = "Totaal vakbeheersing";
@@ -91,41 +86,34 @@ class UncachedStudentProvider{
     }
 
     function getByID(int $studentID) : Student{
-        return (new GroupingProvider($this->canvasReader))
+        global $providers;
+        return $providers->groupingProvider
                         ->getSectionGroupings()
                         ->getStudent($studentID);
     }
 }
 
 //Caching is done here
-class StudentProvider extends UncachedStudentProvider implements ICacheSerialisable{
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return $visitor->serializeStudentProvider($this);
-    }
+class StudentProvider extends UncachedStudentProvider{
 
     public function getStudentResultsByID($studentID): array{
         global $studentDataCacheTimeout;
-        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRightsAPIKeyRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::getStudentResultsByID($studentID),
-        $this, "getStudentResultsByID", $studentID);
+         "getStudentResultsByID", $studentID);
     }
 
     public function getStudentMasteryByID($studentID): LeerdoelResultaat{
         global $studentDataCacheTimeout;
-        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRightsAPIKeyRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::getStudentMasteryByID($studentID),
-        $this, "getStudentMasteryByID", $studentID);
+         "getStudentMasteryByID", $studentID);
     }
 
     public function getByID($studentID): Student{
         global $studentDataCacheTimeout;
-        return cached_call(new StudentIDRestricted($studentID), $studentDataCacheTimeout,
+        return cached_call(new StudentIDRightsAPIKeyRestricted($studentID), $studentDataCacheTimeout,
         fn() => parent::getByID($studentID),
-        $this, "getByID", $studentID);
-    }
-
-    public function getCanvasReader(){
-        // var_dump($this->canvasReader);
-        return $this->canvasReader;
+         "getByID", $studentID);
     }
 }

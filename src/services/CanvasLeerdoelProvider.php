@@ -2,18 +2,14 @@
 require_once __DIR__ . '/../util/UtilFuncs.php';
 require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
-require_once __DIR__ . "/../util/Caching/ICacheSerialisable.php";
-require_once __DIR__ . "/../util/Caching/CourseRestricted.php";
+require_once __DIR__ . "/../util/Caching/CacheRules.php";
+require_once __DIR__ . "/../util/Caching/CourseAPIKeyRestricted.php";
 
 class UncachedCanvasLeerdoelProvider{
-    protected $canvasReader;
-
-    public function __construct(CanvasReader $canvasReader){
-        $this->canvasReader = $canvasReader;
-    }
     public function getTotal(): LeerdoelenStructuur{
+        global $providers;
         $groupMap = [];
-        $outcomeGroups = $this->canvasReader->fetchAllOutcomeGroups();
+        $outcomeGroups = $providers->canvasReader->fetchAllOutcomeGroups();
 
         foreach($outcomeGroups as $outcomeGroup){
             $id = $outcomeGroup["id"];
@@ -45,13 +41,14 @@ class UncachedCanvasLeerdoelProvider{
     }
 
     private function getLeeruitkomsten(int $groupID, string $groupName): LeerdoelenStructuur{
-        $leeruitkomstData = $this->canvasReader->fetchOutcomesOfGroup($groupID);
+        global $providers;
+        $leeruitkomstData = $providers->canvasReader->fetchOutcomesOfGroup($groupID);
         $planning = new LeerdoelenStructuur();
         $planning->categorie = $groupName;
         foreach($leeruitkomstData as $leeruitkomst){
             $id = $leeruitkomst["id"];
             $titel = $leeruitkomst["title"];
-            $leeruitkomst = $this->canvasReader->fetchOutcome($id);
+            $leeruitkomst = $providers->canvasReader->fetchOutcome($id);
             //check if all fields are present
             $result = isSetMany($leeruitkomst, "id", "title", "points_possible", "mastery_points", "calculation_method", "ratings");
             if($result[0] === false){
@@ -98,19 +95,12 @@ class UncachedCanvasLeerdoelProvider{
     }
 }
 
-class CanvasLeerdoelProvider extends UncachedCanvasLeerdoelProvider implements ICacheSerialisable{
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return $visitor->serializeCanvasLeerdoelProvider($this);
-    }
+class CanvasLeerdoelProvider extends UncachedCanvasLeerdoelProvider{
         
     public function getTotal(): LeerdoelenStructuur{
         global $sharedCacheTimeout;
-        return cached_call(new CourseRestricted(), $sharedCacheTimeout,
-        fn() => parent::getTotal(), $this,
+        return cached_call(new CourseAPIKeyRestricted(), $sharedCacheTimeout,
+        fn() => parent::getTotal(), 
         "getTotal");
-    }
-
-    public function getCanvasReader(){
-        return $this->canvasReader;
     }
 }

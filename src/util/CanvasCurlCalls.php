@@ -14,7 +14,7 @@ class PaginationHeaderHandler{
     }
 }
 
-function curlCall($url, $apiKey) {
+function curlCall($url, $apiKey): array {
     // echo "Fetching URL: $url<br>";
     // Initialize cURL
     $ch = curl_init($url);

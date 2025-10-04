@@ -23,7 +23,7 @@
     },
     "sectionGrouping" : {
         "Jaar 2" : {
-            "sections" : ["2A - 25/26","2B - 25/26","2C - 25/26"],
+            "sections" : ["Sandbox Kelvin Gaag"],
             "periods" : {
                 "5" : {
                     "start": "2025-08-01",

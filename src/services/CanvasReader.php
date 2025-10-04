@@ -5,9 +5,7 @@ require_once __DIR__ . '/../models/LeerdoelResultaat.php';
 require_once __DIR__ . '/../util/Caching/Caching.php';
 require_once __DIR__ . '/../util/Constants.php';
 require_once __DIR__ . '/../util/CanvasCurlCalls.php';
-require_once __DIR__ . '/../util/caching/ICacheSerialisable.php';
-require_once __DIR__ . '/../util/caching/MaximumRestrictions.php';
-require_once __DIR__ . '/../util/caching/CourseRestricted.php';
+require_once __DIR__ . '/../util/caching/CacheRules.php';
 
 class UncachedCanvasReader{
     private $apiKey;
@@ -90,10 +88,7 @@ class UncachedCanvasReader{
     }
 }
 
-class CanvasReader extends UncachedCanvasReader implements ICacheSerialisable{
-    public function serialize(ICacheSerialiserVisitor $visitor): string {
-        return $visitor->serializeCanvasReader($this);
-    }
+class CanvasReader extends UncachedCanvasReader{
 
     /**
      * Currently no cached functions needed, as all other providers are cached. 
