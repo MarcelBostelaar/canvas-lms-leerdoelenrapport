@@ -52,7 +52,7 @@ class DummyStudentResultProvider extends StudentProvider{
             $regularResults = array_merge([$a->then($b)], $regularResults);
         }
         $regularResults[0]->fillWithZeroForMissing($structuur->getAllLeerdoelen());
-        $regularResults[0]->beschrijving = "Totaal vakbeheersing";
+        $regularResults[0]->beschrijving = "Totaal vakbeheersing (Dummy data)";
         return $regularResults[0];
     }
 }

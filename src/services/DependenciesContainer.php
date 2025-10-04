@@ -5,7 +5,6 @@ require_once __DIR__ . '/ConfigProvider.php';
 require_once __DIR__ . '/GroupingProvider.php';
 require_once __DIR__ . '/LeerdoelenStructuurProvider.php';
 require_once __DIR__ . '/StudentProvider.php';
-require_once __DIR__ . '/../debug/DummyDataCanvasReader.php';
 require_once __DIR__ . '/../debug/DummyStudentResultProvider.php';
 
 class DependenciesContainer
