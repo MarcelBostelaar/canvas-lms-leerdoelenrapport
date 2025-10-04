@@ -46,8 +46,8 @@ function LeerresultatenToJS($resultaten, $addTo){
             // var_dump($resultaat);
             foreach($resultaat->getAll() as $naam => $content){ ?>
             "<?php echo $naam;?>" : {
-                "niveau" : <?php echo $content["niveau"]?>,
-                "periode" : <?php echo '"' . $content["datum"]->format('Y-m-d') . '"'?>
+                "niveau" : <?php echo $content->niveau?>,
+                "periode" : <?php echo '"' . $content->datum->format('Y-m-d') . '"'?>
             },
             <?php } ?>
         };

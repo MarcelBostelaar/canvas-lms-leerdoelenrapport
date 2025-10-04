@@ -19,6 +19,7 @@ function calculateRGBFromScore(score) {
 let studentData = {};
 
 function populateProgressBox(progress_box, data){
+    console.log("Populating progress box with data:", data);
     let text = '';
     text += "On track: " + (data.on_track + data.exceeded).toString() + " / " + data.total.toString();
     text += "<br>Aantal niveaus achterstand: " + data.points_behind.toString();

@@ -29,6 +29,9 @@ class SingleStudentViewController extends BaseController{
         else{
             $uitkomsten = [$mastery];
         }
+        // echo "<pre>";
+        // var_dump($uitkomsten);
+        // echo "</pre>";
         renderRapport($student, $Leerdoelen, $uitkomsten);
     }
 }

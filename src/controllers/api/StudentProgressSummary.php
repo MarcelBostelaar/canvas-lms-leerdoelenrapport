@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../models/Leerdoel.php';
 require_once __DIR__ . '/APIController.php';
 
 class StudentProgressSummary extends APIController {
+    protected $debug_keep_output = true;
     public function handle(){
         global $providers;
         $studentID = (int)$_GET['id'];
@@ -18,15 +19,6 @@ class StudentProgressSummary extends APIController {
             fn(Leerdoel $leerdoel) => 
                     [($mastery->getBehaaldNiveau($leerdoel) ?? 0), $leerdoel->getMostRecentToetsNiveauInPeriode($targetPeriod)]
             , $planning->getAllLeerdoelen());
-
-        //testdata, generate 52 random numbers between 0 and 120
-        $randomLevel = rand(3, 8);
-        $results = array_map(fn($x) => [rand($randomLevel, 8) / 2, 3], range(1, 52));
-        if(rand(0, 8) == 0){
-            //One out of 8 cases, perfect scores
-            $results = array_map(fn($x) => [rand(6, 8) / 2, 3], range(1, 52));
-        }
-
 
         //Count how many are on track, exceeded or behind
         

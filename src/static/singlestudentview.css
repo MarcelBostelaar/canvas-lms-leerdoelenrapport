@@ -44,10 +44,43 @@ td{
 .niveau_indicator.color_0{
     background-color: red;
 }
+
 .color_1{
     color: blue;
 }
 
 .niveau_indicator.color_1{
     background-color: blue;
+}
+
+.color_2{
+    color: rgb(255, 0, 200);
+}
+
+.niveau_indicator.color_2{
+    background-color: rgb(255, 0, 200);
+}
+
+.color_3{
+    color: yellow;
+}
+
+.niveau_indicator.color_3{
+    background-color: yellow;
+}
+
+.color_4{
+    color: orangered;
+}
+
+.niveau_indicator.color_4{
+    background-color: orangered;
+}
+
+.color_5{
+    color: turquoise;
+}
+
+.niveau_indicator.color_5{
+    background-color: turquoise;
 }

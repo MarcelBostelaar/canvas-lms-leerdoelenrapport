@@ -6,6 +6,7 @@ require_once __DIR__ . '/GroupingProvider.php';
 require_once __DIR__ . '/LeerdoelenStructuurProvider.php';
 require_once __DIR__ . '/StudentProvider.php';
 require_once __DIR__ . '/../debug/DummyDataCanvasReader.php';
+require_once __DIR__ . '/../debug/DummyStudentResultProvider.php';
 
 class DependenciesContainer
 {
@@ -37,10 +38,7 @@ function setupGlobalDependencies(): void
     $dependencies->studentProvider = new StudentProvider();
     
     //Debug
-    // $dependencies->canvasReader = new DummyDataCanvasReader(
-    //     $dependencies->canvasReader->getApiKey(), 
-    //     $dependencies->canvasReader->getBaseURL(), 
-    //     $dependencies->canvasReader->getCourseURL());
+    $dependencies->studentProvider = new DummyStudentResultProvider();
 
     //set global provider variable
     $GLOBALS["providers"] = $dependencies;
