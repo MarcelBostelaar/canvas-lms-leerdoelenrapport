@@ -82,7 +82,7 @@ function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuu
 
     ?>
 
-    <div class="html_template marker_group" hidden>
+    <div class="html_template marker_group">
         <div class="title_container">
             <input type="checkbox" checked class="supercheck">
             <h3 class="title">Your title here</h3>
@@ -91,15 +91,22 @@ function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuu
 
         </div>
     </div>
+
+
+    <h2>Student: <?=htmlspecialchars($student->name)?></h2>
+    <button onclick="refresh()">Refresh</button>
+    <div id="resultcontent">
+        <div id="resultaten">
+            <div class="followsticky">
+                <h3>Resultaten</h3>
+                <form id='resultaten_form'></form>
+            </div>
+        </div>
+
+        <table>
+        <?php renderLeerdoelCategorie($student, $leerdoelenStructuur, $aantalPeriodes);?>
+        </table>
+    </div>
+
     <?php
-
-
-    echo "<h2>Student: " . htmlspecialchars($student->name) . "</h2>";
-    echo '<button onclick="refresh()">Refresh</button>';
-    echo "<h3>Resultaten</h3>";
-    echo "<form id='resultaten_form'></form>";
-
-    echo "<table>";
-    renderLeerdoelCategorie($student, $leerdoelenStructuur, $aantalPeriodes);
-    echo "</table>";
 }

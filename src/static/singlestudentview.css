@@ -2,6 +2,20 @@
     display: none;
 }
 
+#resultcontent{
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.followsticky{
+    position: sticky;
+}
+
+#resultaten{
+    order: 2;
+}
+
 .marker_group .title_container{
     display: flex;
 }
@@ -17,6 +31,7 @@
     border-width: 1px;
     border-color: white;
     content: ".";
+    display: inline-block;
 }
 
 td{
@@ -74,11 +89,11 @@ td{
 }
 
 .color_4{
-    color: orangered;
+    color: rgb(0, 255, 34);
 }
 
 .niveau_indicator.color_4{
-    background-color: orangered;
+    background-color: rgb(0, 255, 34);
 }
 
 .color_5{

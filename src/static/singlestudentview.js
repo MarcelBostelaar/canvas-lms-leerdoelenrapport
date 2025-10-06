@@ -67,6 +67,7 @@ function toggleSupercheck(groupElement){
     [...allboxes].forEach(box=> {
         if(box.checked != checkValue){
             box.checked = checkValue;
+            box.onchange();
         }
     });
 }
