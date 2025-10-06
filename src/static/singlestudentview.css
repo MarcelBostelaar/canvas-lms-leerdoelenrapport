@@ -1,5 +1,9 @@
-.highlight_marker{
-    /* background-color: ; */
+.html_template{
+    display: none;
+}
+
+.marker_group .title_container{
+    display: flex;
 }
 
 .highlight_marker_fade{

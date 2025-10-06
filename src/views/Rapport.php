@@ -38,33 +38,60 @@ function renderLeerdoelCategorie(Student $student, LeerdoelenStructuur $leerdoel
     }
 }
 
-function LeerresultatenToJS($resultaten, $addTo){
-    foreach($resultaten as $resultaat){
-        ?>
-        <?php echo $addTo . '["' . $resultaat->beschrijving;?>"] = {
-            <?php
-            // var_dump($resultaat);
-            foreach($resultaat->getAll() as $naam => $content){ ?>
-            "<?php echo $naam;?>" : {
-                "niveau" : <?php echo $content->niveau?>,
-                "periode" : <?php echo '"' . $content->datum->format('Y-m-d') . '"'?>
-            },
-            <?php } ?>
-        };
-        <?php
-    }
+function LeerresultatenToDict($resultaten){
+    $dictform = array_map_assoc(fn($_, $r) => 
+    [
+        "key" => $r->beschrijving,
+        "value" => array_map_assoc(fn($k, $v) => 
+            [
+                "key" => $k,
+                "value" => [
+                    "niveau" => $v->niveau,
+                    "datum" => $v->datum->format('Y-m-d')
+                ]
+            ]
+            ,$r->getAll())
+    ]
+    , $resultaten);
+
+    // $dictform = json_encode($dictform);
+    return $dictform;
 }
 
+/**
+ * Summary of renderRapport
+ * @param Student $student
+ * @param LeerdoelenStructuur $leerdoelenStructuur
+ * @param LeerdoelResultaat[] $uitkomsten
+ * @param mixed $aantalPeriodes
+ * @return void
+ */
 function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuur, array $uitkomsten, $aantalPeriodes = 12) {
-    
+    $jsdict = array_map_assoc(fn($k, $v) => [
+        "key" => $k,
+        "value" => LeerresultatenToDict($v)
+    ], $uitkomsten);
+    $jsdict = json_encode($jsdict);
     echo "<script type='text/javascript'>\n";
     // echo "<pre>";
-    echo "let resultaten = {};\n";
-    LeerresultatenToJS($uitkomsten, 'resultaten');
+    echo "let resultaten = $jsdict;\n";
     echo "</script>";
     // echo "</pre>";
     echo "<script src='/static/singlestudentview.js' type='text/javascript'></script>";
     echo '<link rel="stylesheet" href="/static/singlestudentview.css">';
+
+    ?>
+
+    <div class="html_template marker_group" hidden>
+        <div class="title_container">
+            <input type="checkbox" checked class="supercheck">
+            <h3 class="title">Your title here</h3>
+        </div>
+        <div class="marker_container">
+
+        </div>
+    </div>
+    <?php
 
 
     echo "<h2>Student: " . htmlspecialchars($student->name) . "</h2>";

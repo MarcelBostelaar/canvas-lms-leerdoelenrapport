@@ -39,3 +39,15 @@ function roundToNearestFraction(float $value, int $n): float {
     $fraction = 1 / $n;
     return round($value * $fraction) / $fraction;
 }
+
+function array_map_assoc(callable $callback, array $array): array
+{
+    $data = array_map(function($key) use ($callback, $array){
+        return $callback($key, $array[$key]);
+    }, array_keys($array));
+    $realdata = [];
+    foreach($data as $item){
+        $realdata[$item['key']] = $item['value'];
+    }
+    return $realdata;
+}

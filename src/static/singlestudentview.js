@@ -2,6 +2,8 @@ function onlyalfanumeric(string){
     return string.replace(/[^a-zA-Z0-9]/gi, '');
 }
 
+
+
 function createResultMarkers(label, data, colorClass){
     for (let leerdoelnaam in data) {
         let rij = document.getElementById("leerdoel_" + onlyalfanumeric(leerdoelnaam));
@@ -24,7 +26,7 @@ function createResultMarkers(label, data, colorClass){
     };
 }
 
-function createMarkerSelector(label, colorClass, index){
+function createMarkerSelector(groupID, label, colorClass, toggleCallback){
     let idGenerated = "collection" + onlyalfanumeric(label);
     let labelele = document.createElement("label");
     labelele.setAttribute("for", idGenerated);
@@ -34,12 +36,14 @@ function createMarkerSelector(label, colorClass, index){
     input.setAttribute("id", idGenerated);
     input.setAttribute("type", "checkbox");
     input.setAttribute("checked", true);
-    input.onchange = () => toggleShow(index);
+    input.onchange = toggleCallback;
 
     addMHEvents(labelele, colorClass);
     addMHEvents(input, colorClass);
 
-    let form = document.getElementById("resultaten_form");
+    // get the element in the group where the markers go.
+    // console.log
+    let form = document.querySelector("#" + groupID + " .marker_container");
     form.append(input);
     form.append(labelele);
     form.append(document.createElement("br"));
@@ -51,18 +55,31 @@ function deleteGeneratedMarkers(){
     });
 }
 
-function toggleShow(index){
-    resultaten[index]["show"] = !resultaten[index]["show"];
+function toggleShow(item){
+    item["show"] = !item["show"];
     refreshMarkers();
+}
+
+function toggleSupercheck(groupElement){
+    let self = groupElement.querySelector(".supercheck");
+    let checkValue = self.checked;
+    let allboxes = groupElement.querySelectorAll('input[type=checkbox]');
+    [...allboxes].forEach(box=> {
+        if(box.checked != checkValue){
+            box.checked = checkValue;
+        }
+    });
 }
 
 function refreshMarkers(){
     deleteGeneratedMarkers();
-    resultaten.forEach(container => {
-        if(container["show"]){
-            createResultMarkers(container["label"], container["data"], container["color_class"])
-        }
-    });
+    for (let [groupname, group] of Object.entries(resultaten)) {
+        group.forEach(container => {
+            if(container["show"]){
+                createResultMarkers(container["label"], container["data"], container["color_class"])
+            }
+        });
+    }
 }
 
 
@@ -110,20 +127,42 @@ function refresh(){
     });
 }
 
+function createGroup(groupname){
+    let group = document.querySelector(".marker_group, .html_template").cloneNode(true);
+    group.classList.remove("html_template");
+    let title = group.querySelector(".title");
+    title.innerHTML = groupname;
+    let supercheck = group.querySelector("input");
+    supercheck.onchange = () => toggleSupercheck(group);
+    let groupID = "group_" + onlyalfanumeric(groupname);
+    group.id = groupID;
+    return [group, groupID];
+}
+
 //Startup
 document.addEventListener("DOMContentLoaded", ()=> {
     let colorIndex = 0;
     let newResultaten = [];
-    for (let label in resultaten){
-        let colorClass = "color_" + colorIndex.toString();
-        newResultaten.push({
-            "label" : label,
-            "color_class" : colorClass,
-            "data": resultaten[label],
-            "show": true
-        });
-        createMarkerSelector(label, colorClass, colorIndex);
-        colorIndex++;
+    for(let group in resultaten){
+        newResultaten[group] = [];
+        let form = document.getElementById("resultaten_form");
+        let items = createGroup(group);
+        form.appendChild(items[0]);
+        let groupID = items[1];
+
+        for (let label in resultaten[group]){
+            let colorClass = "color_" + colorIndex.toString();
+            let i = {
+                "label" : label,
+                "color_class" : colorClass,
+                "data": resultaten[group][label],
+                "show": true
+            };
+            newResultaten[group].push(i);
+            let toggleCallback = () => toggleShow(i);
+            createMarkerSelector(groupID, label, colorClass, toggleCallback);
+            colorIndex++;
+        }
     }
     resultaten = newResultaten;
     refreshMarkers();

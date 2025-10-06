@@ -23,12 +23,8 @@ class SingleStudentViewController extends BaseController{
         $student = $StudentReader->getByID($studentID);
         $mastery = $student->getMasteryResults();
         $grades = $student->getIndividualGrades();
-        if(count($grades) > 0){
-            $uitkomsten = array_merge([$mastery], $grades);
-        }
-        else{
-            $uitkomsten = [$mastery];
-        }
+        $uitkomsten["Mastery"] = [$mastery];
+        $uitkomsten["Grades"] = $grades;
         // echo "<pre>";
         // var_dump($uitkomsten);
         // echo "</pre>";
