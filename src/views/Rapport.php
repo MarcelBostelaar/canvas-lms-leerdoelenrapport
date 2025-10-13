@@ -6,6 +6,7 @@ function filterOnlyLetters($string){
 }
 
 function renderLeerdoelCategorie(Student $student, LeerdoelenStructuur $leerdoelenStructuur, $aantalPeriodes){
+    global $showLeerdoelIds;
 
     echo "<tr><th colspan='" . ($aantalPeriodes + 2) . "'>" . htmlspecialchars($leerdoelenStructuur->categorie) . "</th></tr>";
     $nonChildLeerdoelen = $leerdoelenStructuur->getNonChildLeerdoelen();
@@ -21,7 +22,12 @@ function renderLeerdoelCategorie(Student $student, LeerdoelenStructuur $leerdoel
         foreach ($nonChildLeerdoelen as $leerdoel) {
             $leerdoelAsClass = 'leerdoel_' . filterOnlyLetters($leerdoel->naam);
             echo "<tr id='$leerdoelAsClass'>";
-            echo "<td>" . htmlspecialchars($leerdoel->naam) . "</td>";
+            echo "<td>" . htmlspecialchars($leerdoel->naam);
+            if($showLeerdoelIds){
+                $canvasID = $leerdoel->leeruitkomstIDInCanvas;
+                echo " ($canvasID)";
+            }
+            echo "</td>";
             echo "<td class='toetsniveau_0 periode_0 rapportcell first last'></td>";
             for ($p = 1; $p <= $aantalPeriodes; $p++) {
                 $toetsniveau = $leerdoel->getExactToetsNiveauInPeriode($p);

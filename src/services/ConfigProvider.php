@@ -34,7 +34,7 @@ class ConfigProvider{
             );
         }
 
-        return new Config(new AllSectionGroupings($groupings), $outcomes);
+        return new Config(new AllSectionGroupings($groupings), $outcomes, $data['hideOutcomes']);
     }
 }
 

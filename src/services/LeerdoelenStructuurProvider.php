@@ -13,6 +13,11 @@ class UncachedLeerdoelenStructuurProvider{
         $loaded = $this->fromConfig();
         $canvasdata = $providers->canvasLeerdoelProvider->getTotal();
         self::merge($canvasdata, $loaded);
+
+        $toHide = $providers->configProvider->getRawConfig()->hideOutcomes;
+        foreach($toHide as $hide){
+            $canvasdata->deleteLeerdoel($hide);
+        }
         
         $canvasdata->debugPopulateMissingToetsmomenten();
         return $canvasdata;

@@ -44,6 +44,7 @@
             }
         }
     },
+    "hideOutcomes": [3557, 3558],
     "outcomes" : [
         {
             "naam": "Op tijd aan de bel trekken",

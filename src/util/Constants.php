@@ -7,3 +7,4 @@ $courseID = (int)$env['courseID'];
 $sharedCacheTimeout = (int)$env['sharedCacheTimeout'];
 $studentDataCacheTimeout = (int)$env['studentDataCacheTimeout'];
 $roundToNearestOneOver = (int)$env['roundToNearestOneOver'];
+$showLeerdoelIds = (bool)$env['showLeerdoelIds'];

@@ -32,9 +32,11 @@ class Config {
      * @var Outcome[]
      */
     public array $outcomes; 
-    public function __construct(AllSectionGroupings $sectionGroupings, array $outcomes) {
+    public array $hideOutcomes = [];
+    public function __construct(AllSectionGroupings $sectionGroupings, array $outcomes, array $hideOutcomes) {
         $this->sectionGroupings = $sectionGroupings;
         $this->outcomes = $outcomes;
+        $this->hideOutcomes = $hideOutcomes;
     }
 }
 

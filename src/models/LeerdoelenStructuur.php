@@ -83,6 +83,17 @@ class LeerdoelenStructuur{
         return null;
     }
 
+    public function deleteLeerdoel(int $canvasID){
+        foreach($this->leerdoelPlanning as $key => $leerdoel){
+            if($leerdoel->leeruitkomstIDInCanvas == $canvasID){
+                unset($this->leerdoelPlanning[$key]);
+            }
+        }
+        foreach($this->children as $childGroup){
+            $childGroup->deleteLeerdoel($canvasID);
+        }
+    }
+
     public function debugPopulateMissingToetsmomenten(){
         foreach($this->getAllLeerdoelen() as $leerdoel){
             for($i = 1; $i <= $leerdoel->meesterschapsNiveau; $i++){
