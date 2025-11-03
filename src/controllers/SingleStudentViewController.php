@@ -30,7 +30,7 @@ class SingleStudentViewController extends BaseController{
         // echo "<pre>";
         // var_dump($uitkomsten);
         // echo "</pre>";
-        renderRapport($student, $Leerdoelen, $date, $uitkomsten);
+        renderRapport($student, $Leerdoelen,  $uitkomsten, $date);
     }
 }
 

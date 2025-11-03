@@ -85,6 +85,12 @@ function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuu
     // echo "</pre>";
     echo "<script src='/static/singlestudentview.js' type='text/javascript'></script>";
     echo '<link rel="stylesheet" href="/static/singlestudentview.css">';
+    ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<?php
+
 
     ?>
 

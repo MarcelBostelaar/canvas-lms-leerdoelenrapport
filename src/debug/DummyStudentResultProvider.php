@@ -14,11 +14,16 @@ class DummyStudentResultProvider extends StudentProvider{
         $firstdate = (new DateTime())->sub(new DateInterval("P1D"));
         $result = [];
         $resultAmounts = rand(3, 5);
+        $perfectStudent = rand(0, 10) == 0;
         for($i=0; $i<$resultAmounts; $i++){
             $res = new LeerdoelResultaat();
             $res->beschrijving = "Dummy resultaat " . ($i+1);
             $date = (clone $firstdate)->sub(new DateInterval("P" . ($i) . "D"));
             foreach($structuur->getAllLeerdoelen() as $leerdoel){
+                if($perfectStudent){
+                    $res->add($leerdoel, $leerdoel->meesterschapsNiveau, $date);
+                    continue;
+                }
                 if(rand(0,2) == 0) continue; //Skip some leerdoelen
                 $res->add($leerdoel, rand(0, $leerdoel->meesterschapsNiveau), $date);
             }
