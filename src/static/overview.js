@@ -64,7 +64,20 @@ function refresh(){
     });
 }
 
+let timeoutDatechange = null;
+
 document.addEventListener("DOMContentLoaded", function() {
+    // .addEventListener("on")
+    document.getElementById("date").addEventListener('input', function (evt) {
+        clearTimeout(timeoutDatechange);
+        timeoutDatechange = setTimeout(function(){
+            const dateVal = evt.target.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('date', dateVal);
+            window.location.href = url.toString();
+        }, 3000);
+    });
+
     let elementsToLoad = Array.from(document.querySelectorAll('.progress_box'));
     let processed = elementsToLoad.map(element => {
         let studentID = element.id.replace('progress_box_', '');

@@ -18,6 +18,8 @@ class SingleStudentViewController extends BaseController{
             throw new Exception("No id provided");
         }
         $studentID = intval($_GET['id']);
+        $date = isset($_GET["date"]) ? $_GET["date"] : "now";;
+        $date = new DateTime($date);
         $StudentReader = $providers->studentProvider;
         $Leerdoelen = $providers->leerdoelenStructuurProvider->getStructuur();
         $student = $StudentReader->getByID($studentID);
@@ -28,7 +30,7 @@ class SingleStudentViewController extends BaseController{
         // echo "<pre>";
         // var_dump($uitkomsten);
         // echo "</pre>";
-        renderRapport($student, $Leerdoelen, $uitkomsten);
+        renderRapport($student, $Leerdoelen, $date, $uitkomsten);
     }
 }
 

@@ -140,8 +140,20 @@ function createGroup(groupname){
     return [group, groupID];
 }
 
+let timeoutDatechange = null;
+
 //Startup
 document.addEventListener("DOMContentLoaded", ()=> {
+    document.getElementById("date").addEventListener('input', function (evt) {
+        clearTimeout(timeoutDatechange);
+        timeoutDatechange = setTimeout(function(){
+            const dateVal = evt.target.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('date', dateVal);
+            window.location.href = url.toString();
+        }, 3000);
+    });
+
     let colorIndex = 0;
     let newResultaten = [];
     for(let group in resultaten){

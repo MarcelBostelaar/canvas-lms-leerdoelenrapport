@@ -9,8 +9,9 @@ class OverviewController extends BaseController{
     public function index(){
         global $providers;
         $groupings = $providers->groupingProvider->getSectionGroupings();
+        $showDate = isset($_GET["date"]) ? $_GET["date"] : "now";
 
-        RenderOverview($groupings);
+        RenderOverview($groupings, new DateTime($showDate));
     }
 }
 

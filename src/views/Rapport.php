@@ -72,7 +72,7 @@ function LeerresultatenToDict($resultaten){
  * @param mixed $aantalPeriodes
  * @return void
  */
-function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuur, array $uitkomsten, $aantalPeriodes = 12) {
+function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuur, array $uitkomsten, DateTime $date, $aantalPeriodes = 12) {
     $jsdict = array_map_assoc(fn($k, $v) => [
         "key" => $k,
         "value" => LeerresultatenToDict($v)
@@ -97,6 +97,9 @@ function renderRapport(Student $student, LeerdoelenStructuur $leerdoelenStructuu
 
         </div>
     </div>
+
+    Laat zien voor datum: <input type="date" id="date" value="<?=$date->format("Y-m-d")?>">
+
 
 
     <h2>Student: <?=htmlspecialchars($student->name)?></h2>
