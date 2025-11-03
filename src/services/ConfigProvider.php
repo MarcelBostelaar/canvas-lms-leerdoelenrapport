@@ -30,7 +30,7 @@ class ConfigProvider{
             $outcomes[] = new Outcome(
                 $outcomeData['naam'],
                 $outcomeData['toetsmomenten'],
-                $outcomeData['beschrijvingen']
+                isset($outcomeData['beschrijvingen']) ? $outcomeData['beschrijvingen'] : []
             );
         }
 

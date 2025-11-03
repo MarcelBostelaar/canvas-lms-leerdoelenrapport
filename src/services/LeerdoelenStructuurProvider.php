@@ -19,7 +19,7 @@ class UncachedLeerdoelenStructuurProvider{
             $canvasdata->deleteLeerdoel($hide);
         }
         
-        $canvasdata->debugPopulateMissingToetsmomenten();
+        // $canvasdata->debugPopulateMissingToetsmomenten();
         return $canvasdata;
     }
 

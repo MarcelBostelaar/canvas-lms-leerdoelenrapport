@@ -47,31 +47,363 @@
     "hideOutcomes": [3557, 3558],
     "outcomes" : [
         {
-            "naam": "Op tijd aan de bel trekken",
+            "naam" : "Eenvoudige ERD maken",
             "toetsmomenten" : [
-                [1, 2],
                 [3],
-                [5]
-            ],
-            "beschrijvingen": [
-                "Beginner beschrijving",
-                "Gevorderde beschrijving",
-                "Eindexamenniveau beschrijving",
-                "Boven eindexamenniveau beschrijving"
+                [4, 5, 6],
+                [7, 8]
             ]
-            },
+        },
         {
-            "naam": "CSS",
+            "naam" : "WireFrame maken",
             "toetsmomenten" : [
                 [1],
-                [3, 4],
+                [2],
+                [3, 4, 6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Usecase Diagram maken",
+            "toetsmomenten" : [
+                [6],
+                [7],
+                [8]
+            ]
+        },
+        {
+            "naam" : "Activity Diagram maken",
+            "toetsmomenten" : [
+                [4],
+                [5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Klassendiagram maken",
+            "toetsmomenten" : [
+                [5],
+                [7],
+                [8]
+            ]
+        },
+        {
+            "naam" : "Acceptatietest maken",
+            "toetsmomenten" : [
+                [2, 3],
+                [4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Sitemap maken",
+            "toetsmomenten" : [
+                [1],
+                [],
+                [2, 4, 6, 8]
+            ]
+        },
+        {
+            "naam" : "Unit Test",
+            "toetsmomenten" : [
+                [7],
+                [],
+                [8]
+            ]
+        },
+        {
+            "naam" : "SEO vriendelijke website",
+            "toetsmomenten" : [
+                [1, 2, 3],
+                [4],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "OOP",
+            "toetsmomenten" : [
+                [],
+                [5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Projectstructuur",
+            "toetsmomenten" : [
+                [1, 2],
+                [3, 4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Codestructuur",
+            "toetsmomenten" : [
+                [1, 2, 3],
+                [4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Basisvaardigheden programmeren",
+            "toetsmomenten" : [
+                [2],
+                [3],
+                [4]
+            ]
+        },
+        {
+            "naam" : "Debugger gebruiken",
+            "toetsmomenten" : [
+                [5],
+                [6],
+                [7, 8]
+            ]
+        },
+        {
+            "naam" : "Voorkomen SQL Injecties",
+            "toetsmomenten" : [
+                [],
+                [],
+                [4, 6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Hash & Salt",
+            "toetsmomenten" : [
+                [],
+                [],
+                [3, 4, 6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "AI",
+            "toetsmomenten" : [
+                [],
+                [],
+                []
+            ]
+        },
+        {
+            "naam" : "Gebruikt libraries in programmeertalen",
+            "toetsmomenten" : [
+                [5],
+                [6],
+                [7, 8]
+            ]
+        },
+        {
+            "naam" : "Versiebeheer",
+            "toetsmomenten" : [
+                [2, 3],
+                [4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Userstories",
+            "toetsmomenten" : [
+                [1, 2, 3, 4],
+                [5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Gesprektechnieken",
+            "toetsmomenten" : [
+                [6, 7, 8],
+                [],
+                [9, 10, 11, 12]
+            ]
+        },
+        {
+            "naam" : "Reflecteren",
+            "toetsmomenten" : [
+                [1, 2, 3],
+                [4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Werken in Sprints",
+            "toetsmomenten" : [
+                [2, 3, 4, 5],
+                [],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Retrospective",
+            "toetsmomenten" : [
+                [1, 2, 3],
+                [4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Scrum-board Gebruik",
+            "toetsmomenten" : [
+                [2, 3, 4, 5],
+                [],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "MoSCoW",
+            "toetsmomenten" : [
+                [1],
+                [5],
                 [6]
-            ],
-            "beschrijvingen": [
-                "Beginner beschrijving",
-                "Gevorderde beschrijving",
-                "Eindexamenniveau beschrijving",
-                "Boven eindexamenniveau beschrijving"
+            ]
+        },
+        {
+            "naam" : "Back-log",
+            "toetsmomenten" : [
+                [3, 4, 5, 6],
+                [],
+                [7]
+            ]
+        },
+        {
+            "naam" : "Werkt op tijd",
+            "toetsmomenten" : [
+                [],
+                [],
+                [1, 2, 3, 4, 5, 6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Presentatie Technieken",
+            "toetsmomenten" : [
+                [],
+                [],
+                [1, 2, 3, 4, 5, 6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "AVG",
+            "toetsmomenten" : [
+                [3],
+                [4],
+                [6]
+            ]
+        },
+        {
+            "naam" : "Copyright",
+            "toetsmomenten" : [
+                [],
+                [],
+                [1, 2, 3, 4, 5, 6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Ethiek",
+            "toetsmomenten" : [
+                [],
+                [],
+                []
+            ]
+        },
+        {
+            "naam" : "Bestandssystemen",
+            "toetsmomenten" : [
+                [1, 2, 3],
+                [4],
+                [6]
+            ]
+        },
+        {
+            "naam" : "Netwerk",
+            "toetsmomenten" : [
+                [],
+                [],
+                []
+            ]
+        },
+        {
+            "naam" : "Accessibility",
+            "toetsmomenten" : [
+                [3],
+                [4, 5],
+                [6, 7, 8]
+            ]
+        },
+        {
+            "naam" : "Op tijd aan de bel trekken",
+            "toetsmomenten" : [
+                [],
+                [],
+                [9, 10, 11, 12]
+            ]
+        },
+        {
+            "naam" : "Gesprek met een teamlead",
+            "toetsmomenten" : [
+                [],
+                [],
+                [9, 10, 11, 12]
+            ]
+        },
+        {
+            "naam" : "Scheiding test en live omgeving",
+            "toetsmomenten" : [
+                [],
+                [],
+                [9, 10, 11, 12]
+            ]
+        },
+        {
+            "naam" : "Storypoints",
+            "toetsmomenten" : [
+                [],
+                [],
+                [9, 10, 11, 12]
+            ]
+        },
+        {
+            "naam" : "HTML",
+            "toetsmomenten" : [
+                [],
+                [1, 2, 3],
+                [4]
+            ]
+        },
+        {
+            "naam" : "CSS",
+            "toetsmomenten" : [
+                [],
+                [],
+                [1, 2, 3, 4]
+            ]
+        },
+        {
+            "naam" : "PHP",
+            "toetsmomenten" : [
+                [3, 4],
+                [5],
+                [6]
+            ]
+        },
+        {
+            "naam" : "JavaScript",
+            "toetsmomenten" : [
+                [3, 4],
+                [5],
+                [6]
+            ]
+        },
+        {
+            "naam" : "MySQL",
+            "toetsmomenten" : [
+                [3],
+                [4],
+                [6]
+            ]
+        },
+        {
+            "naam" : "Laravel",
+            "toetsmomenten" : [
+                [],
+                [6],
+                [7]
             ]
         }
     ]
