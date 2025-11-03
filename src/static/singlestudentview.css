@@ -46,13 +46,13 @@ td{
     background-color: grey;
 }
 .toetsniveau_1 {
-    background-color: lightblue;
-}
-.toetsniveau_2 {
     background-color: lightgreen;
 }
-.toetsniveau_3 {
+.toetsniveau_2 {
     background-color: orange;
+}
+.toetsniveau_3 {
+    background-color: lightskyblue;
 }
 
 /*Marker indicators*/
