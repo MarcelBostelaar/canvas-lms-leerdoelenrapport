@@ -37,7 +37,7 @@ function setupGlobalDependencies(): void
     $dependencies->studentProvider = new StudentProvider();
     
     //Debug
-    $dependencies->studentProvider = new DummyStudentResultProvider();
+    // $dependencies->studentProvider = new DummyStudentResultProvider();
 
     //set global provider variable
     $GLOBALS["providers"] = $dependencies;

@@ -27,6 +27,10 @@ class UncachedStudentProvider{
                 continue; //Skip ungraded submissions
             }
 
+            if(!isset($result["full_rubric_assessment"])){
+                continue;
+            }
+
             $assessmentResults = [];
             foreach($result["full_rubric_assessment"]["data"] as $assesment){
                 if(!isset($assesment["points"])){
@@ -36,6 +40,7 @@ class UncachedStudentProvider{
                 array_push($assessmentResults, $newAssessment);
             }
 
+            
             $filteredInfo = new SubmissionStruct(
                 $result["assignment"]["name"],
                 strtotime($result["graded_at"]),
@@ -48,11 +53,12 @@ class UncachedStudentProvider{
             foreach($filteredInfo->Assessment as $assessment){
                 $leerdoel = $leerdoelPlanning->getLeeruitkomstByCanvasID($assessment->learning_outcome_id);
                 if($leerdoel == null){
-                    // echo "<span style='color: red'>Onbekend leerdoel met ID " . $assessment->learning_outcome_id . "</span><br>";
+                    echo "<span style='color: red'>Onbekend leerdoel met ID " . $assessment->learning_outcome_id . "</span><br>";
                     continue;
                 }
                 $newResultaat->add($leerdoel, $assessment->score, $filteredInfo->gradedAt);
             }
+
             array_push($output, $newResultaat);
         }
         return $output;

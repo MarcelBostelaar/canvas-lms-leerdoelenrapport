@@ -1,2 +1,9 @@
-courseURL = "www.dummy.nl"
-APIKEY = "dsjfh"
+baseURL = "https://flexedu.instructure.com/api/v1"
+# courseID = "66208"
+courseID = "70126"
+APIKEY = "yourkeyhere"
+sharedCacheTimeout = "31536000"
+studentDataCacheTimeout = "31536000"
+yearPositionInSectionName = 0
+roundToNearestOneOver = 2
+showLeerdoelIds = "false"

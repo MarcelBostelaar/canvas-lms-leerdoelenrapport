@@ -82,7 +82,7 @@ class UncachedLeerdoelenStructuurProvider{
         $newLeerdoel->beschrijvingen = $beschrijvingen;
         $newLeerdoel->toetsmomenten = $toetsmomentenTotal;
         $newLeerdoel->optelModel = $optelModel;
-        $newLeerdoel->id_in_canvas = $id_in_canvas;
+        $newLeerdoel->leeruitkomstIDInCanvas = $id_in_canvas;
         $newLeerdoel->meesterschapsNiveau = max($a->meesterschapsNiveau, $b->meesterschapsNiveau);
 
         return $newLeerdoel;

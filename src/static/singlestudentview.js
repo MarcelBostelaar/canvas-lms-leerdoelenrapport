@@ -7,12 +7,20 @@ function onlyalfanumeric(string){
 function createResultMarkers(label, data, colorClass){
     for (let leerdoelnaam in data) {
         let rij = document.getElementById("leerdoel_" + onlyalfanumeric(leerdoelnaam));
-        let teLabelen = rij
-            .querySelectorAll(".toetsniveau_" + data[leerdoelnaam]["niveau"].toString() + ".last")[0];
+        let teLabelen;
+        let targetLevel = data[leerdoelnaam]["niveau"];
+        while(teLabelen == undefined){
+            teLabelen = rij
+                .querySelectorAll(".toetsniveau_" + targetLevel.toString() + ".last")[0];
+            if(targetLevel < 0){
+                throw new Error("Not possible");
+            }
 
-        if(teLabelen == undefined){
-            console.warn("Could not find cell for " + leerdoelnaam + " with level " + data[leerdoelnaam]["niveau"]);
-            continue;
+
+            if(teLabelen == undefined){
+                targetLevel -= 1;
+                console.warn("Could not find cell for " + leerdoelnaam + " with level " + data[leerdoelnaam]["niveau"]);
+            }
         }
 
         let newElement = document.createElement("div");

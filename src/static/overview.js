@@ -5,15 +5,24 @@ function rescaleValueToRange(value, originalMin, originalMax, newMin, newMax) {
 }
 
 function calculateRGBFromScore(score) {
-    const exponent = 25;
-    if( score == 1 ) {
+    // Score 0 = green, Score 15+ = red
+    if (score === 0) {
         return 'RGB(0,255,0)'; // Green
     }
-    let newScore = score**exponent; // Make the scale non-linear. 
-    //Max out at 200, so real green is visibly different from almost green
-    let green = Math.floor(Math.sqrt(rescaleValueToRange(newScore, 0, 1, 0, 200**2)));
-    //invert score, so 1 is red and 0 is green
-    let red = Math.floor(Math.sqrt(rescaleValueToRange(1 - newScore, 0, 1, 55**2, 255**2)));
+    
+    const maxScore = 15;
+    const clampedScore = Math.min(score, maxScore); // Cap at 15
+    const normalizedScore = clampedScore / maxScore; // 0 to 1
+    
+    const exponent = 1;
+    const adjustedScore = normalizedScore ** exponent; // Non-linear scale
+    
+    // Green: 255 at score 0, down to ~55 at score 15
+    let green = Math.floor(rescaleValueToRange(adjustedScore, 0, 1, 255, 0));
+    
+    // Red: 55 at score 0, up to 255 at score 15
+    let red = Math.floor(rescaleValueToRange(adjustedScore, 0, 1, 0, 255));
+    
     console.log(`Score: ${score}, Red: ${red}, Green: ${green}`);
     return `RGB(${red},${green},0)`;
 }
@@ -29,8 +38,7 @@ function populateProgressBox(progress_box, data){
     text += " - Aantal leerdoelen voorsprong: " + data.exceeded.toString();
 
     progress_box.innerHTML = text;
-
-    progress_box.style.backgroundColor = calculateRGBFromScore(1 - (data.points_behind / data.total_points_needed));
+    progress_box.style.backgroundColor = calculateRGBFromScore(data.points_behind);
     progress_box.classList.add($isOnTrack ? "onTrack" : "behind");
 }
 
